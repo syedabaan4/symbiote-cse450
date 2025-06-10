@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "970157714358",
+    "project_id": "symbiote-c8aca",
+    "storage_bucket": "symbiote-c8aca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:970157714358:android:cd72ad76241b3dbcc4ef17",
+        "android_client_info": {
+          "package_name": "com.example.symbiote"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "970157714358-r2ftusfpoua8am89c6v7p9optf53vuop.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.symbiote",
+            "certificate_hash": "e47d68f9a5bac77f3e579963203261b340aff138"
+          }
+        },
+        {
+          "client_id": "970157714358-rn5phaq8gsd5rbmggcr0apr5oqesr3dl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMz2_ZoZU0oO5X3MLVavowI35gIFsJCzQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "970157714358-rn5phaq8gsd5rbmggcr0apr5oqesr3dl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
