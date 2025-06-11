@@ -94,5 +94,22 @@ class ThoughtsCubit extends Cubit<ThoughtsState> {
     }
   }
 
-  // TODO: Delete thought
+  Future<void> deleteThought(String thoughtId) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        emit(const ThoughtsError('User not authenticated'));
+        return;
+      }
+
+      await _firestore
+          .collection('thoughts')
+          .doc(thoughtId)
+          .delete();
+
+      emit(ThoughtDeleted(thoughtId));
+    } catch (e) {
+      emit(ThoughtsError('Failed to delete thought: ${e.toString()}'));
+    }
+  }
 } 

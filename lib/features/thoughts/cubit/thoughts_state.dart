@@ -32,6 +32,15 @@ class ThoughtSaved extends ThoughtsState {
   List<Object?> get props => [thought];
 }
 
+class ThoughtDeleted extends ThoughtsState {
+  final String thoughtId;
+
+  const ThoughtDeleted(this.thoughtId);
+
+  @override
+  List<Object?> get props => [thoughtId];
+}
+
 class ThoughtsError extends ThoughtsState {
   final String message;
 
