@@ -1,77 +1,71 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
-class Thought extends Equatable {
+class Thread extends Equatable {
   final String id;
-  final String threadId; // Reference to the thread this thought belongs to
-  final String encryptedContent;
-  final String iv; 
+  final String title; // Generated from first thought or user-defined
   final DateTime createdAt;
   final DateTime updatedAt;
   final String userId;
-  final String? assistantMode; 
-  final Map<String, dynamic>? metadata; 
+  final int thoughtCount;
+  final String? lastThoughtPreview; // Encrypted preview of last thought
+  final Map<String, dynamic>? metadata;
 
-  const Thought({
+  const Thread({
     required this.id,
-    required this.threadId,
-    required this.encryptedContent,
-    required this.iv,
+    required this.title,
     required this.createdAt,
     required this.updatedAt,
     required this.userId,
-    this.assistantMode,
+    required this.thoughtCount,
+    this.lastThoughtPreview,
     this.metadata,
   });
 
-  factory Thought.fromFirestore(DocumentSnapshot doc) {
+  factory Thread.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    return Thought(
+    return Thread(
       id: doc.id,
-      threadId: data['threadId'] as String,
-      encryptedContent: data['encryptedContent'] as String,
-      iv: data['iv'] as String? ?? '', 
+      title: data['title'] as String,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
       userId: data['userId'] as String,
-      assistantMode: data['assistantMode'] as String?,
+      thoughtCount: data['thoughtCount'] as int? ?? 0,
+      lastThoughtPreview: data['lastThoughtPreview'] as String?,
       metadata: data['metadata'] as Map<String, dynamic>?,
     );
   }
 
   Map<String, dynamic> toFirestore() {
     return {
-      'threadId': threadId,
-      'encryptedContent': encryptedContent,
-      'iv': iv,
+      'title': title,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
       'userId': userId,
-      'assistantMode': assistantMode,
+      'thoughtCount': thoughtCount,
+      'lastThoughtPreview': lastThoughtPreview,
       'metadata': metadata,
     };
   }
 
-  Thought copyWith({
+  Thread copyWith({
     String? id,
-    String? threadId,
-    String? encryptedContent,
-    String? iv,
+    String? title,
     DateTime? createdAt,
     DateTime? updatedAt,
     String? userId,
-    String? assistantMode,
+    int? thoughtCount,
+    String? lastThoughtPreview,
     Map<String, dynamic>? metadata,
   }) {
-    return Thought(
+    return Thread(
       id: id ?? this.id,
-      threadId: threadId ?? this.threadId,
-      encryptedContent: encryptedContent ?? this.encryptedContent,
-      iv: iv ?? this.iv,
+      title: title ?? this.title,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       userId: userId ?? this.userId,
-      assistantMode: assistantMode ?? this.assistantMode,
+      thoughtCount: thoughtCount ?? this.thoughtCount,
+      lastThoughtPreview: lastThoughtPreview ?? this.lastThoughtPreview,
       metadata: metadata ?? this.metadata,
     );
   }
@@ -79,13 +73,12 @@ class Thought extends Equatable {
   @override
   List<Object?> get props => [
         id,
-        threadId,
-        encryptedContent,
-        iv,
+        title,
         createdAt,
         updatedAt,
         userId,
-        assistantMode,
+        thoughtCount,
+        lastThoughtPreview,
         metadata,
       ];
 } 

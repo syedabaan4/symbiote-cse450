@@ -4,7 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:symbiote/features/auth/cubit/auth_state.dart';
 import 'features/auth/cubit/auth_cubit.dart';
 import 'features/auth/pages/login_page.dart';
-import 'features/thoughts/cubit/thoughts_cubit.dart';
+import 'features/thoughts/cubit/threads_cubit.dart';
+import 'features/thoughts/cubit/thread_detail_cubit.dart';
 import 'features/thoughts/pages/home_page.dart';
 import 'firebase_options.dart';
 
@@ -24,7 +25,8 @@ class MainApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => AuthCubit()),
-        BlocProvider(create: (context) => ThoughtsCubit()),
+        BlocProvider(create: (context) => ThreadsCubit()),
+        BlocProvider(create: (context) => ThreadDetailCubit()),
       ],
       child: MaterialApp(
         title: 'Symbiote',

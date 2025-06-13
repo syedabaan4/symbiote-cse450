@@ -5,9 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../auth/cubit/auth_state.dart';
 import '../../drawer/widgets/app_drawer.dart';
-import '../cubit/thoughts_cubit.dart';
-import '../cubit/thoughts_state.dart';
-import 'thought_entry_page.dart';
+import '../cubit/threads_cubit.dart';
+import '../cubit/threads_state.dart';
+import 'thread_entry_page.dart';
+import 'thread_detail_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -15,23 +16,23 @@ class HomePage extends StatelessWidget {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final thoughtDate = DateTime(date.year, date.month, date.day);
+    final threadDate = DateTime(date.year, date.month, date.day);
 
-    if (thoughtDate == today) {
+    if (threadDate == today) {
       return 'Today';
-    } else if (thoughtDate == today.subtract(const Duration(days: 1))) {
+    } else if (threadDate == today.subtract(const Duration(days: 1))) {
       return 'Yesterday';
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }
   }
 
-  Future<void> _showDeleteDialog(BuildContext context, String thoughtId) async {
+  Future<void> _showDeleteDialog(BuildContext context, String threadId) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Thought'),
-        content: const Text('Are you sure you want to delete this thought? This action cannot be undone.'),
+        title: const Text('Delete Thread'),
+        content: const Text('Are you sure you want to delete this thread? This will delete all thoughts in this thread and cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -49,7 +50,7 @@ class HomePage extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      context.read<ThoughtsCubit>().deleteThought(thoughtId);
+      context.read<ThreadsCubit>().deleteThread(threadId);
     }
   }
 
@@ -60,14 +61,14 @@ class HomePage extends StatelessWidget {
         BlocListener<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is Authenticated) {
-              context.read<ThoughtsCubit>().loadThoughts();
+              context.read<ThreadsCubit>().loadThreads();
             }
           },
         ),
-        BlocListener<ThoughtsCubit, ThoughtsState>(
+        BlocListener<ThreadsCubit, ThreadsState>(
           listener: (context, state) {
-            if (state is ThoughtSaved || state is ThoughtDeleted) {
-              context.read<ThoughtsCubit>().loadThoughts();
+            if (state is ThreadCreated || state is ThreadDeleted) {
+              context.read<ThreadsCubit>().loadThreads();
             }
           },
         ),
@@ -75,10 +76,10 @@ class HomePage extends StatelessWidget {
       child: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, authState) {
           if (authState is Authenticated) {
-            final thoughtsState = context.read<ThoughtsCubit>().state;
-            if (thoughtsState is ThoughtsInitial) {
+            final threadsState = context.read<ThreadsCubit>().state;
+            if (threadsState is ThreadsInitial) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.read<ThoughtsCubit>().loadThoughts();
+                context.read<ThreadsCubit>().loadThreads();
               });
             }
           }
@@ -88,7 +89,7 @@ class HomePage extends StatelessWidget {
             appBar: AppBar(
               centerTitle: true,
               title: Text(
-                'My Thoughts',
+                'My Threads',
                 style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -112,17 +113,17 @@ class HomePage extends StatelessWidget {
                     Icons.refresh,
                     color: Colors.black,
                   ),
-                  onPressed: () => context.read<ThoughtsCubit>().loadThoughts(),
+                  onPressed: () => context.read<ThreadsCubit>().loadThreads(),
                 ),
               ],
             ),
-            body: BlocBuilder<ThoughtsCubit, ThoughtsState>(
+            body: BlocBuilder<ThreadsCubit, ThreadsState>(
               builder: (context, state) {
-                if (state is ThoughtsLoading) {
+                if (state is ThreadsLoading) {
                   return Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.black, size: 30));
                 }
 
-                if (state is ThoughtsError) {
+                if (state is ThreadsError) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +131,7 @@ class HomePage extends StatelessWidget {
                         Text('Error: ${state.message}'),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () => context.read<ThoughtsCubit>().loadThoughts(),
+                          onPressed: () => context.read<ThreadsCubit>().loadThreads(),
                           child: const Text('Retry'),
                         ),
                       ],
@@ -138,21 +139,21 @@ class HomePage extends StatelessWidget {
                   );
                 }
 
-                if (state is ThoughtsLoaded) {
-                  if (state.thoughts.isEmpty) {
+                if (state is ThreadsLoaded) {
+                  if (state.threads.isEmpty) {
                     return const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.lightbulb_outline, size: 64, color: Colors.grey),
+                          Icon(Icons.forum_outlined, size: 64, color: Colors.grey),
                           SizedBox(height: 16),
                           Text(
-                            'No thoughts yet',
+                            'No threads yet',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Tap the + button to add your first thought',
+                            'Tap the + button to start your first thread',
                             style: TextStyle(color: Colors.grey),
                           ),
                         ],
@@ -164,44 +165,80 @@ class HomePage extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      crossAxisSpacing: 0.5,
-                      mainAxisSpacing: 0,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
                       childAspectRatio: 0.9,
                     ),
-                    itemCount: state.thoughts.length,
+                    itemCount: state.threads.length,
                     itemBuilder: (context, index) {
-                      final thought = state.thoughts[index];
-                      final decryptedContent = context
-                          .read<ThoughtsCubit>()
-                          .decryptThought(thought);
+                      final thread = state.threads[index];
 
                       return Card(
-                        elevation: 0,
+                        elevation: 1,
                         child: InkWell(
                           onTap: () {
-                            // TODO: Navigate to thought chat/thread
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ThreadDetailPage(threadId: thread.id),
+                              ),
+                            );
                           },
-                          onLongPress: () => _showDeleteDialog(context, thought.id),
+                          onLongPress: () => _showDeleteDialog(context, thread.id),
                           borderRadius: BorderRadius.circular(12),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Text(
-                                    decryptedContent,
-                                    maxLines: 6,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context).textTheme.bodyMedium,
-                                  ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        thread.title,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blueGrey.shade100,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        '${thread.thoughtCount}',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.blueGrey.shade700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _formatDate(thought.createdAt),
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      _formatDate(thread.updatedAt),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 16,
+                                      color: Colors.grey[400],
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -220,7 +257,7 @@ class HomePage extends StatelessWidget {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ThoughtEntryPage(),
+                    builder: (context) => const ThreadEntryPage(),
                   ),
                 );
               },
