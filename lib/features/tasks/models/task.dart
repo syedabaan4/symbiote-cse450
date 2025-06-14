@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 class Task extends Equatable {
   final String id;
   final String content;
+  final String? category; // New field for task category
   final bool isCompleted;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -14,6 +15,7 @@ class Task extends Equatable {
   const Task({
     required this.id,
     required this.content,
+    this.category,
     required this.isCompleted,
     required this.createdAt,
     required this.updatedAt,
@@ -27,6 +29,7 @@ class Task extends Equatable {
     return Task(
       id: doc.id,
       content: data['content'] as String,
+      category: data['category'] as String?,
       isCompleted: data['isCompleted'] as bool? ?? false,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
@@ -39,6 +42,7 @@ class Task extends Equatable {
   Map<String, dynamic> toFirestore() {
     return {
       'content': content,
+      'category': category,
       'isCompleted': isCompleted,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
@@ -51,6 +55,7 @@ class Task extends Equatable {
   Task copyWith({
     String? id,
     String? content,
+    String? category,
     bool? isCompleted,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -61,6 +66,7 @@ class Task extends Equatable {
     return Task(
       id: id ?? this.id,
       content: content ?? this.content,
+      category: category ?? this.category,
       isCompleted: isCompleted ?? this.isCompleted,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -74,6 +80,7 @@ class Task extends Equatable {
   List<Object?> get props => [
         id,
         content,
+        category,
         isCompleted,
         createdAt,
         updatedAt,

@@ -53,26 +53,22 @@ class TasksCubit extends Cubit<TasksState> {
         return;
       }
 
-      // Parse tasks from AI response (assumes tasks start with "- ")
-      final taskLines = aiResponse
-          .split('\n')
-          .where((line) => line.trim().startsWith('- '))
-          .map((line) => line.trim().substring(2).trim())
-          .where((task) => task.isNotEmpty)
-          .toList();
+      // Parse categorized tasks from AI response
+      final tasks = _parseTasksFromAIResponse(aiResponse);
 
-      if (taskLines.isEmpty) {
+      if (tasks.isEmpty) {
         return; // No tasks to create
       }
 
       final batch = _firestore.batch();
       final now = DateTime.now();
 
-      for (final taskContent in taskLines) {
+      for (final taskData in tasks) {
         final taskId = _firestore.collection('tasks').doc().id;
         final task = Task(
           id: taskId,
-          content: taskContent,
+          content: taskData['content']!,
+          category: taskData['category'],
           isCompleted: false,
           createdAt: now,
           updatedAt: now,
@@ -94,6 +90,38 @@ class TasksCubit extends Cubit<TasksState> {
     } catch (e) {
       emit(TasksError('Failed to create tasks: ${e.toString()}'));
     }
+  }
+
+  /// Parses tasks from AI response with category support
+  List<Map<String, String?>> _parseTasksFromAIResponse(String aiResponse) {
+    final tasks = <Map<String, String?>>[];
+    final lines = aiResponse.split('\n');
+    String? currentCategory;
+
+    for (final line in lines) {
+      final trimmedLine = line.trim();
+      
+      // Check if line is a category header (starts with ** and ends with **)
+      if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
+        // Extract category name (remove ** and trailing :)
+        currentCategory = trimmedLine
+            .substring(2, trimmedLine.length - 2)
+            .replaceAll(':', '')
+            .trim();
+      }
+      // Check if line is a task (starts with -)
+      else if (trimmedLine.startsWith('- ')) {
+        final taskContent = trimmedLine.substring(2).trim();
+        if (taskContent.isNotEmpty) {
+          tasks.add({
+            'content': taskContent,
+            'category': currentCategory,
+          });
+        }
+      }
+    }
+
+    return tasks;
   }
 
   Future<void> toggleTaskCompletion(String taskId) async {

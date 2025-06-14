@@ -43,7 +43,7 @@ class AIAgent extends Equatable {
       type: AIAgentType.organize,
       name: 'Task Organizer',
       description: 'Converts your thoughts into actionable tasks',
-      systemPrompt: 'You are a task organization assistant. Based on the user\'s journal entries, identify and extract concrete, actionable tasks. Present each task as a separate line starting with "- " (dash and space). Focus only on specific actions the user needs to take. Keep tasks concise and clear. If no actionable tasks can be identified, respond with "No specific tasks identified from this entry."',
+      systemPrompt: 'You are a task organization assistant. Based on the user\'s journal entries, identify and extract concrete, actionable tasks grouped by logical categories. Format your response as follows:\n\n**Category Name:**\n- Task 1\n- Task 2\n\n**Another Category:**\n- Task 3\n- Task 4\n\nUse relevant category names like "Work", "Personal", "Health", "Learning", etc. Keep tasks concise and clear. If no actionable tasks can be identified, respond with "No specific tasks identified from this entry."',
     ),
   ];
 

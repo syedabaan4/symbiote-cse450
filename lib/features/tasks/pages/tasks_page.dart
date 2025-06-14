@@ -120,49 +120,94 @@ class TasksPage extends StatelessWidget {
               );
             }
 
-            // Separate completed and pending tasks
-            final pendingTasks = state.tasks.where((task) => !task.isCompleted).toList();
-            final completedTasks = state.tasks.where((task) => task.isCompleted).toList();
+            // Group tasks by category, then separate completed and pending within each category
+            final tasksByCategory = <String, List<Task>>{};
+            
+            for (final task in state.tasks) {
+              final category = task.category ?? 'Uncategorized';
+              tasksByCategory.putIfAbsent(category, () => []);
+              tasksByCategory[category]!.add(task);
+            }
 
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // Pending tasks
-                if (pendingTasks.isNotEmpty) ...[
-                  Text(
-                    'Pending',
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  ...pendingTasks.map((task) => _TaskItem(
-                    task: task,
-                    onToggle: () => context.read<TasksCubit>().toggleTaskCompletion(task.id),
-                    onDelete: () => context.read<TasksCubit>().deleteTask(task.id),
-                  )),
-                  const SizedBox(height: 24),
-                ],
-
-                // Completed tasks
-                if (completedTasks.isNotEmpty) ...[
-                  Text(
-                    'Completed',
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  ...completedTasks.map((task) => _TaskItem(
-                    task: task,
-                    onToggle: () => context.read<TasksCubit>().toggleTaskCompletion(task.id),
-                    onDelete: () => context.read<TasksCubit>().deleteTask(task.id),
-                  )),
-                ],
+                // Display tasks grouped by category
+                ...tasksByCategory.entries.map((entry) {
+                  final category = entry.key;
+                  final categoryTasks = entry.value;
+                  
+                  // Separate completed and pending tasks within category
+                  final pendingTasks = categoryTasks.where((task) => !task.isCompleted).toList();
+                  final completedTasks = categoryTasks.where((task) => task.isCompleted).toList();
+                  
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Category header with task count
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 12, top: 16),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.blueGrey.shade50,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.blueGrey.shade200),
+                              ),
+                              child: Text(
+                                category,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.blueGrey.shade700,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${categoryTasks.length} ${categoryTasks.length == 1 ? 'task' : 'tasks'}',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // Pending tasks in this category
+                      ...pendingTasks.map((task) => _TaskItem(
+                        task: task,
+                        onToggle: () => context.read<TasksCubit>().toggleTaskCompletion(task.id),
+                        onDelete: () => context.read<TasksCubit>().deleteTask(task.id),
+                      )),
+                      
+                      // Completed tasks in this category (if any)
+                      if (completedTasks.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Completed in ${category}',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ...completedTasks.map((task) => _TaskItem(
+                          task: task,
+                          onToggle: () => context.read<TasksCubit>().toggleTaskCompletion(task.id),
+                          onDelete: () => context.read<TasksCubit>().deleteTask(task.id),
+                        )),
+                      ],
+                      
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                }).toList(),
               ],
             );
           }
