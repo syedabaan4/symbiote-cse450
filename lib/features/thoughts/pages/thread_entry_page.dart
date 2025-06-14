@@ -5,6 +5,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../cubit/threads_cubit.dart';
 import '../cubit/threads_state.dart';
 import '../cubit/thread_detail_cubit.dart';
+import '../../ai/models/ai_agent.dart';
 import 'thread_detail_page.dart';
 
 class ThreadEntryPage extends StatefulWidget {
@@ -23,6 +24,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
   final _textController = TextEditingController();
   final _focusNode = FocusNode();
   bool _hasText = false;
+  AIAgentType? _selectedAgent;
 
   @override
   void initState() {
@@ -64,8 +66,27 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
       // Add thought to existing thread
       await context.read<ThreadDetailCubit>().addThoughtToThread(widget.existingThreadId!, content);
     } else {
-      // Create new thread
-      await context.read<ThreadsCubit>().createThreadWithThought(content);
+      // Create new thread - require agent selection for new threads
+      if (_selectedAgent == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Please select an AI agent for your thread',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            backgroundColor: Colors.orange.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+        return;
+      }
+      await context.read<ThreadsCubit>().createThreadWithThought(content, aiAgentType: _selectedAgent);
     }
   }
 
@@ -222,6 +243,83 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
                   ],
                 ),
               ),
+              
+              // Agent selection for new threads
+              if (widget.existingThreadId == null) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Choose your AI companion:',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade800,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ...AIAgent.availableAgents.map((agent) {
+                        final isSelected = _selectedAgent == agent.type;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedAgent = agent.type;
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: isSelected ? Colors.black : Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected ? Colors.black : Colors.grey.shade200,
+                                width: isSelected ? 2 : 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        agent.name,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: isSelected ? Colors.white : Colors.black,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        agent.description,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                          color: isSelected ? Colors.white70 : Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (isSelected)
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                ),
+              ],
               
               Expanded(
                 child: Padding(

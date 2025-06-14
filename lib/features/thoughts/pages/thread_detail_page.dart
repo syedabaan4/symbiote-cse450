@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../cubit/thread_detail_cubit.dart';
 import '../cubit/threads_state.dart';
+import '../../ai/cubit/ai_cubit.dart';
+import '../../ai/cubit/ai_state.dart';
 import 'thread_entry_page.dart';
 
 class ThreadDetailPage extends StatelessWidget {
@@ -22,35 +24,75 @@ class ThreadDetailPage extends StatelessWidget {
     });
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/gradient-1.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SafeArea(
-          child: BlocConsumer<ThreadDetailCubit, ThreadDetailState>(
-            listener: (context, state) {
-              if (state is ThreadDetailError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      state.message,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<ThreadDetailCubit, ThreadDetailState>(
+              listener: (context, state) {
+                if (state is ThreadDetailError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        state.message,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      backgroundColor: Colors.red.shade600,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    backgroundColor: Colors.red.shade600,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  );
+                }
+              },
+            ),
+            BlocListener<AICubit, AIState>(
+              listener: (context, state) {
+                if (state is AIResponseGenerated) {
+                  // Reload thread details to show the new AI response
+                  context.read<ThreadDetailCubit>().loadThreadDetails(threadId);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'AI reflection added to your thread',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      backgroundColor: Colors.green.shade600,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                );
-              }
-            },
+                  );
+                } else if (state is AIError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        state.message,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      backgroundColor: Colors.red.shade600,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+          child: BlocBuilder<ThreadDetailCubit, ThreadDetailState>(
             builder: (context, state) {
               if (state is ThreadDetailLoading) {
                 return Center(
@@ -60,7 +102,7 @@ class ThreadDetailPage extends StatelessWidget {
                   ),
                 );
               }
-
+        
               if (state is ThreadDetailError) {
                 return Center(
                   child: Column(
@@ -76,7 +118,7 @@ class ThreadDetailPage extends StatelessWidget {
                   ),
                 );
               }
-
+        
               if (state is ThreadDetailLoaded) {
                 return Column(
                   children: [
@@ -90,24 +132,48 @@ class ThreadDetailPage extends StatelessWidget {
                           final decryptedContent = context
                               .read<ThreadDetailCubit>()
                               .decryptThought(thought);
-
+                          final isAIThought = thought.assistantMode != null;
+        
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 32),
-                            child: Text(
-                              decryptedContent,
-                              style: GoogleFonts.inter(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
-                                height: 1.5,
-                                color: Colors.black87,
-                              ),
+                            margin: const EdgeInsets.only(bottom: 26),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (isAIThought)
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      'AI Reflection',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.blue.shade700,
+                                      ),
+                                    ),
+                                  ),
+                                Text(
+                                  decryptedContent,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.5,
+                                    color: isAIThought ? Colors.black54 : Colors.black87,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         },
                       ),
                     ),
-
-                    // Add button
+        
+                    // Action buttons
                     Container(
                       padding: const EdgeInsets.all(16),
                       child: Row(
@@ -121,6 +187,56 @@ class ThreadDetailPage extends StatelessWidget {
                             ),
                           ),
                           const Spacer(),
+                          
+                          // Reflect button
+                          BlocBuilder<AICubit, AIState>(
+                            builder: (context, aiState) {
+                              final isGenerating = aiState is AIGenerating;
+                              return FloatingActionButton.extended(
+                                onPressed: isGenerating ? null : () {
+                                  if (state.thread.aiAgentType != null) {
+                                    context.read<AICubit>().generateReflection(
+                                      threadId: threadId,
+                                      agentType: state.thread.aiAgentType!,
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'No AI agent assigned to this thread',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.orange.shade600,
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                backgroundColor: isGenerating ? Colors.grey.shade300 : Colors.purple.shade600,
+                                foregroundColor: Colors.white,
+                                icon: isGenerating 
+                                    ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 16)
+                                    : const Icon(Icons.auto_awesome),
+                                label: Text(
+                                  isGenerating ? 'Reflecting' : 'Reflect',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          
+                          const SizedBox(width: 12),
+                          
+                          // Add thought button
                           FloatingActionButton(
                             onPressed: () async {
                               await Navigator.push(
@@ -142,7 +258,7 @@ class ThreadDetailPage extends StatelessWidget {
                   ],
                 );
               }
-
+        
               return const Center(child: CircularProgressIndicator());
             },
           ),

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/thread.dart';
 import '../models/thought.dart';
 import '../services/encryption_service.dart';
+import '../../ai/models/ai_agent.dart';
 import 'threads_state.dart';
 
 class ThreadsCubit extends Cubit<ThreadsState> {
@@ -48,7 +49,7 @@ class ThreadsCubit extends Cubit<ThreadsState> {
     }
   }
 
-  Future<Thread?> createThreadWithThought(String content, {String? assistantMode}) async {
+  Future<Thread?> createThreadWithThought(String content, {String? assistantMode, AIAgentType? aiAgentType}) async {
     if (content.trim().isEmpty) return null;
     
     try {
@@ -76,6 +77,7 @@ class ThreadsCubit extends Cubit<ThreadsState> {
         userId: user.uid,
         thoughtCount: 1,
         lastThoughtPreview: encrypted['encryptedContent']!,
+        aiAgentType: aiAgentType,
       );
 
       // Create first thought

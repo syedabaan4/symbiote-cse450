@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import '../../ai/models/ai_agent.dart';
 
 class Thread extends Equatable {
   final String id;
@@ -9,6 +10,7 @@ class Thread extends Equatable {
   final String userId;
   final int thoughtCount;
   final String? lastThoughtPreview; // Encrypted preview of last thought
+  final AIAgentType? aiAgentType; // AI agent chosen for this thread
   final Map<String, dynamic>? metadata;
 
   const Thread({
@@ -19,6 +21,7 @@ class Thread extends Equatable {
     required this.userId,
     required this.thoughtCount,
     this.lastThoughtPreview,
+    this.aiAgentType,
     this.metadata,
   });
 
@@ -32,6 +35,12 @@ class Thread extends Equatable {
       userId: data['userId'] as String,
       thoughtCount: data['thoughtCount'] as int? ?? 0,
       lastThoughtPreview: data['lastThoughtPreview'] as String?,
+      aiAgentType: data['aiAgentType'] != null 
+          ? AIAgentType.values.firstWhere(
+              (e) => e.name == data['aiAgentType'],
+              orElse: () => AIAgentType.reflective,
+            )
+          : null,
       metadata: data['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -44,6 +53,7 @@ class Thread extends Equatable {
       'userId': userId,
       'thoughtCount': thoughtCount,
       'lastThoughtPreview': lastThoughtPreview,
+      'aiAgentType': aiAgentType?.name,
       'metadata': metadata,
     };
   }
@@ -56,6 +66,7 @@ class Thread extends Equatable {
     String? userId,
     int? thoughtCount,
     String? lastThoughtPreview,
+    AIAgentType? aiAgentType,
     Map<String, dynamic>? metadata,
   }) {
     return Thread(
@@ -66,6 +77,7 @@ class Thread extends Equatable {
       userId: userId ?? this.userId,
       thoughtCount: thoughtCount ?? this.thoughtCount,
       lastThoughtPreview: lastThoughtPreview ?? this.lastThoughtPreview,
+      aiAgentType: aiAgentType ?? this.aiAgentType,
       metadata: metadata ?? this.metadata,
     );
   }
@@ -79,6 +91,7 @@ class Thread extends Equatable {
         userId,
         thoughtCount,
         lastThoughtPreview,
+        aiAgentType,
         metadata,
       ];
 } 
