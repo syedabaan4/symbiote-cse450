@@ -247,7 +247,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
               // Agent selection for new threads
               if (widget.existingThreadId == null) ...[
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -260,62 +260,64 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ...AIAgent.availableAgents.map((agent) {
-                        final isSelected = _selectedAgent == agent.type;
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedAgent = agent.type;
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: isSelected ? Colors.black : Colors.grey.shade50,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isSelected ? Colors.black : Colors.grey.shade200,
-                                width: isSelected ? 2 : 1,
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<AIAgentType>(
+                            value: _selectedAgent,
+                            hint: Text(
+                              'Select an AI agent',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey.shade600,
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        agent.name,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: isSelected ? Colors.white : Colors.black,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        agent.description,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          color: isSelected ? Colors.white70 : Colors.grey.shade600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Icon(
-                                    Icons.check_circle,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                              ],
+                            isExpanded: true,
+                            icon: Icon(
+                              Icons.expand_more,
+                              color: Colors.grey.shade600,
                             ),
+                            items: AIAgent.availableAgents.map((agent) {
+                              return DropdownMenuItem<AIAgentType>(
+                                value: agent.type,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      agent.name,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      agent.description,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (AIAgentType? value) {
+                              setState(() {
+                                _selectedAgent = value;
+                              });
+                            },
                           ),
-                        );
-                      }).toList(),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -324,37 +326,39 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
-                  child: TextField(
-                    controller: _textController,
-                    focusNode: _focusNode,
-                    maxLines: null,
-                    expands: true,
-                    textAlignVertical: TextAlignVertical.top,
-                    style: GoogleFonts.inter(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w500,
-                      height: 1.6,
-                      color: Colors.grey.shade900,
-                      letterSpacing: 0.5,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: widget.existingThreadId != null 
-                          ? 'Continue your thoughts...'
-                          : 'Start a new thread...',
-                      hintStyle: GoogleFonts.inter(
+                  child: SingleChildScrollView(
+                    child: TextField(
+                      controller: _textController,
+                      focusNode: _focusNode,
+                      maxLines: null,
+                      minLines: 10, // Minimum height to fill the space
+                      textAlignVertical: TextAlignVertical.top,
+                      style: GoogleFonts.inter(
                         fontSize: 26,
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w500,
                         height: 1.6,
-                        color: Colors.grey.shade400,
-                        letterSpacing: -0.2,
+                        color: Colors.grey.shade900,
+                        letterSpacing: 0.5,
                       ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                      isDense: true,
+                      decoration: InputDecoration(
+                        hintText: widget.existingThreadId != null 
+                            ? 'Continue your thoughts...'
+                            : 'Start a new thread...',
+                        hintStyle: GoogleFonts.inter(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w400,
+                          height: 1.6,
+                          color: Colors.grey.shade400,
+                          letterSpacing: -0.2,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                      ),
+                      cursorColor: Colors.grey.shade700,
+                      cursorWidth: 2,
+                      cursorHeight: 24,
                     ),
-                    cursorColor: Colors.grey.shade700,
-                    cursorWidth: 2,
-                    cursorHeight: 24,
                   ),
                 ),
               ),
