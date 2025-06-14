@@ -6,6 +6,8 @@ import '../cubit/thread_detail_cubit.dart';
 import '../cubit/threads_state.dart';
 import '../../ai/cubit/ai_cubit.dart';
 import '../../ai/cubit/ai_state.dart';
+import '../../ai/models/ai_agent.dart';
+import '../../tasks/cubit/tasks_cubit.dart';
 import 'thread_entry_page.dart';
 
 class ThreadDetailPage extends StatelessWidget {
@@ -133,29 +135,93 @@ class ThreadDetailPage extends StatelessWidget {
                               .read<ThreadDetailCubit>()
                               .decryptThought(thought);
                           final isAIThought = thought.assistantMode != null;
+                          final isOrganizeAgent = thought.assistantMode == 'organize';
         
                           return Container(
                             margin: const EdgeInsets.only(bottom: 26),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (isAIThought)
-                                  Container(
-                                    margin: const EdgeInsets.only(bottom: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.shade50,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      'AI Reflection',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.blue.shade700,
+                                if (isAIThought) ...[
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.shade50,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          'AI Reflection',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.blue.shade700,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      // Dropdown for organize agent
+                                      if (isOrganizeAgent)
+                                        PopupMenuButton<String>(
+                                          icon: Icon(
+                                            Icons.more_vert,
+                                            color: Colors.grey.shade600,
+                                            size: 18,
+                                          ),
+                                          onSelected: (value) {
+                                            if (value == 'save_tasks') {
+                                              context.read<TasksCubit>().createTasksFromAIResponse(
+                                                decryptedContent,
+                                                sourceThreadId: threadId,
+                                                sourceThoughtId: thought.id,
+                                              );
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    'Tasks saved successfully',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                  ),
+                                                  backgroundColor: Colors.green.shade600,
+                                                  behavior: SnackBarBehavior.floating,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          itemBuilder: (context) => [
+                                            PopupMenuItem(
+                                              value: 'save_tasks',
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.task_alt,
+                                                    size: 16,
+                                                    color: Colors.grey.shade600,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    'Save to Tasks',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                    ],
                                   ),
+                                  const SizedBox(height: 8),
+                                ],
                                 Text(
                                   decryptedContent,
                                   style: GoogleFonts.inter(

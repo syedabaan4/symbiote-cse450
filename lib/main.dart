@@ -7,6 +7,7 @@ import 'features/auth/pages/login_page.dart';
 import 'features/thoughts/cubit/threads_cubit.dart';
 import 'features/thoughts/cubit/thread_detail_cubit.dart';
 import 'features/ai/cubit/ai_cubit.dart';
+import 'features/tasks/cubit/tasks_cubit.dart';
 import 'features/thoughts/pages/home_page.dart';
 import 'firebase_options.dart';
 
@@ -29,6 +30,7 @@ class MainApp extends StatelessWidget {
         BlocProvider(create: (context) => ThreadsCubit()),
         BlocProvider(create: (context) => ThreadDetailCubit()),
         BlocProvider(create: (context) => AICubit()),
+        BlocProvider(create: (context) => TasksCubit()),
       ],
       child: MaterialApp(
         title: 'Symbiote',

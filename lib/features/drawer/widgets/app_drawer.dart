@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../tasks/pages/tasks_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../auth/cubit/auth_state.dart';
@@ -43,10 +44,15 @@ class AppDrawer extends StatelessWidget {
                     const SizedBox(height: 4),
                     _buildDrawerItem(
                       context,
-                      'Reminders',
+                      'Tasks',
                       onTap: () {
-                        // TODO: Navigate to reminders
                         Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TasksPage(),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 4),

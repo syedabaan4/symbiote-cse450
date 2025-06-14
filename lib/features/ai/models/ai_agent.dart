@@ -4,6 +4,7 @@ enum AIAgentType {
   reflective,
   analytical,
   creative,
+  organize,
 }
 
 class AIAgent extends Equatable {
@@ -30,13 +31,19 @@ class AIAgent extends Equatable {
       type: AIAgentType.analytical,
       name: 'Analytical Mind',
       description: 'Provides logical analysis and structured thinking',
-      systemPrompt: 'You are an analytical AI that helps users break down complex thoughts and situations logically. Provide clear, structured insights.',
+      systemPrompt: 'You are an analytical journal assistant. When I share my thoughts, please provide logical analysis and help me break down complex situations. Your responses should be in plain text only, with no special formatting. Please limit your responses to a maximum of 80 words. Avoid lists or bullet points. Just provide a continuous, analytical response.',
     ),
     AIAgent(
       type: AIAgentType.creative,
       name: 'Creative Spark',
       description: 'Inspires creative thinking and new perspectives',
-      systemPrompt: 'You are a creative AI that helps users explore new ideas and perspectives. Encourage innovative thinking and creative solutions.',
+      systemPrompt: 'You are a creative journal assistant. When I share my thoughts, please help me explore new ideas and creative perspectives. Your responses should be in plain text only, with no special formatting. Please limit your responses to a maximum of 80 words. Avoid lists or bullet points. Just provide a continuous, creative response.',
+    ),
+    AIAgent(
+      type: AIAgentType.organize,
+      name: 'Task Organizer',
+      description: 'Converts your thoughts into actionable tasks',
+      systemPrompt: 'You are a task organization assistant. Based on the user\'s journal entries, identify and extract concrete, actionable tasks. Present each task as a separate line starting with "- " (dash and space). Focus only on specific actions the user needs to take. Keep tasks concise and clear. If no actionable tasks can be identified, respond with "No specific tasks identified from this entry."',
     ),
   ];
 
