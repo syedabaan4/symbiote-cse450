@@ -13,10 +13,7 @@ import 'thread_entry_page.dart';
 class ThreadDetailPage extends StatelessWidget {
   final String threadId;
 
-  const ThreadDetailPage({
-    super.key,
-    required this.threadId,
-  });
+  const ThreadDetailPage({super.key, required this.threadId});
 
   @override
   Widget build(BuildContext context) {
@@ -55,8 +52,7 @@ class ThreadDetailPage extends StatelessWidget {
             BlocListener<AICubit, AIState>(
               listener: (context, state) {
                 if (state is AIResponseGenerated) {
-                  // Reload thread details to show the new AI response
-                  context.read<ThreadDetailCubit>().loadThreadDetails(threadId);
+                  // AI reflection was already added optimistically, just show success message
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -99,12 +95,12 @@ class ThreadDetailPage extends StatelessWidget {
               if (state is ThreadDetailLoading) {
                 return Center(
                   child: LoadingAnimationWidget.fourRotatingDots(
-                    color: Colors.black, 
+                    color: Colors.black,
                     size: 30,
                   ),
                 );
               }
-        
+
               if (state is ThreadDetailError) {
                 return Center(
                   child: Column(
@@ -113,21 +109,26 @@ class ThreadDetailPage extends StatelessWidget {
                       Text('Error: ${state.message}'),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () => context.read<ThreadDetailCubit>().loadThreadDetails(threadId),
+                        onPressed: () => context
+                            .read<ThreadDetailCubit>()
+                            .loadThreadDetails(threadId),
                         child: const Text('Retry'),
                       ),
                     ],
                   ),
                 );
               }
-        
+
               if (state is ThreadDetailLoaded) {
                 return Column(
                   children: [
                     // Thoughts list
                     Expanded(
                       child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 32,
+                        ),
                         itemCount: state.thoughts.length,
                         itemBuilder: (context, index) {
                           final thought = state.thoughts[index];
@@ -135,8 +136,9 @@ class ThreadDetailPage extends StatelessWidget {
                               .read<ThreadDetailCubit>()
                               .decryptThought(thought);
                           final isAIThought = thought.assistantMode != null;
-                          final isOrganizeAgent = thought.assistantMode == 'organize';
-        
+                          final isOrganizeAgent =
+                              thought.assistantMode == 'organize';
+
                           return Container(
                             margin: const EdgeInsets.only(bottom: 26),
                             child: Column(
@@ -144,13 +146,19 @@ class ThreadDetailPage extends StatelessWidget {
                               children: [
                                 if (isAIThought) ...[
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: Colors.blue.shade50,
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         child: Text(
                                           'AI Reflection',
@@ -171,25 +179,36 @@ class ThreadDetailPage extends StatelessWidget {
                                           ),
                                           onSelected: (value) {
                                             if (value == 'save_tasks') {
-                                              context.read<TasksCubit>().createTasksFromAIResponse(
-                                                decryptedContent,
-                                                sourceThreadId: threadId,
-                                                sourceThoughtId: thought.id,
-                                              );
-                                              ScaffoldMessenger.of(context).showSnackBar(
+                                              context
+                                                  .read<TasksCubit>()
+                                                  .createTasksFromAIResponse(
+                                                    decryptedContent,
+                                                    sourceThreadId: threadId,
+                                                    sourceThoughtId: thought.id,
+                                                  );
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
                                                 SnackBar(
                                                   content: Text(
                                                     'Tasks saved successfully',
                                                     style: GoogleFonts.inter(
                                                       fontSize: 14,
-                                                      fontWeight: FontWeight.w400,
+                                                      fontWeight:
+                                                          FontWeight.w400,
                                                     ),
                                                   ),
-                                                  backgroundColor: Colors.green.shade600,
-                                                  behavior: SnackBarBehavior.floating,
+                                                  backgroundColor:
+                                                      Colors.green.shade600,
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
                                                   shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(8),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
                                                   ),
+                                                  
                                                 ),
                                               );
                                             }
@@ -210,7 +229,8 @@ class ThreadDetailPage extends StatelessWidget {
                                                     'Save to Tasks',
                                                     style: GoogleFonts.inter(
                                                       fontSize: 14,
-                                                      fontWeight: FontWeight.w400,
+                                                      fontWeight:
+                                                          FontWeight.w400,
                                                     ),
                                                   ),
                                                 ],
@@ -228,7 +248,9 @@ class ThreadDetailPage extends StatelessWidget {
                                     fontSize: 20,
                                     fontWeight: FontWeight.w500,
                                     height: 1.5,
-                                    color: isAIThought ? Colors.black54 : Colors.black87,
+                                    color: isAIThought
+                                        ? Colors.black54
+                                        : Colors.black87,
                                     letterSpacing: 0.5,
                                   ),
                                 ),
@@ -238,7 +260,7 @@ class ThreadDetailPage extends StatelessWidget {
                         },
                       ),
                     ),
-        
+
                     // Action buttons
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -253,41 +275,58 @@ class ThreadDetailPage extends StatelessWidget {
                             ),
                           ),
                           const Spacer(),
-                          
+
                           // Reflect button
                           BlocBuilder<AICubit, AIState>(
                             builder: (context, aiState) {
                               final isGenerating = aiState is AIGenerating;
                               return FloatingActionButton.extended(
-                                onPressed: isGenerating ? null : () {
-                                  if (state.thread.aiAgentType != null) {
-                                    context.read<AICubit>().generateReflection(
-                                      threadId: threadId,
-                                      agentType: state.thread.aiAgentType!,
-                                    );
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'No AI agent assigned to this thread',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                        ),
-                                        backgroundColor: Colors.orange.shade600,
-                                        behavior: SnackBarBehavior.floating,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                },
-                                backgroundColor: isGenerating ? Colors.grey.shade300 : Colors.purple.shade600,
+                                onPressed: isGenerating
+                                    ? null
+                                    : () {
+                                        if (state.thread.aiAgentType != null) {
+                                          context
+                                              .read<AICubit>()
+                                              .generateReflection(
+                                                threadId: threadId,
+                                                agentType:
+                                                    state.thread.aiAgentType!,
+                                                threadDetailCubit: context
+                                                    .read<ThreadDetailCubit>(),
+                                              );
+                                        } else {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'No AI agent assigned to this thread',
+                                                style: GoogleFonts.inter(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                              backgroundColor:
+                                                  Colors.orange.shade600,
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                backgroundColor: isGenerating
+                                    ? Colors.grey.shade300
+                                    : Colors.purple.shade600,
                                 foregroundColor: Colors.white,
-                                icon: isGenerating 
-                                    ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 16)
+                                icon: isGenerating
+                                    ? LoadingAnimationWidget.staggeredDotsWave(
+                                        color: Colors.white,
+                                        size: 16,
+                                      )
                                     : const Icon(Icons.auto_awesome),
                                 label: Text(
                                   isGenerating ? 'Reflecting' : 'Reflect',
@@ -299,24 +338,23 @@ class ThreadDetailPage extends StatelessWidget {
                               );
                             },
                           ),
-                          
+
                           const SizedBox(width: 12),
-                          
+
                           // Add thought button
                           FloatingActionButton(
                             onPressed: () async {
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ThreadEntryPage(existingThreadId: threadId),
+                                  builder: (context) => ThreadEntryPage(
+                                    existingThreadId: threadId,
+                                  ),
                                 ),
                               );
                             },
                             backgroundColor: Colors.blueGrey.shade600,
-                            child: const Icon(
-                              Icons.add,
-                              color: Colors.white,
-                            ),
+                            child: const Icon(Icons.add, color: Colors.white),
                           ),
                         ],
                       ),
@@ -324,7 +362,7 @@ class ThreadDetailPage extends StatelessWidget {
                   ],
                 );
               }
-        
+
               return const Center(child: CircularProgressIndicator());
             },
           ),
@@ -333,5 +371,3 @@ class ThreadDetailPage extends StatelessWidget {
     );
   }
 }
-
- 

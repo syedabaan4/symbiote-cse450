@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../thoughts/models/thread.dart';
 import '../../thoughts/models/thought.dart';
 import '../../thoughts/services/encryption_service.dart';
+import '../../thoughts/cubit/thread_detail_cubit.dart';
 import '../models/ai_agent.dart';
 import '../services/openrouter_service.dart';
 import 'ai_state.dart';
@@ -28,6 +29,7 @@ class AICubit extends Cubit<AIState> {
   Future<void> generateReflection({
     required String threadId,
     required AIAgentType agentType,
+    ThreadDetailCubit? threadDetailCubit,
   }) async {
     try {
       emit(const AIGenerating());
@@ -91,7 +93,7 @@ class AICubit extends Cubit<AIState> {
         userMessage: conversationHistory.last,
       );
 
-      // Encrypt and save AI response as a thought
+      // Encrypt and create AI thought
       final encrypted = _encryptionService.encryptText(aiResponse);
       
       final thoughtId = _firestore.collection('thoughts').doc().id;
@@ -106,26 +108,32 @@ class AICubit extends Cubit<AIState> {
         assistantMode: agentType.name, // Mark as AI-generated
       );
 
-      // Update thread's thought count and last preview
-      final updatedThread = thread.copyWith(
-        thoughtCount: thread.thoughtCount + 1,
-        updatedAt: DateTime.now(),
-        lastThoughtPreview: encrypted['encryptedContent']!,
-      );
+      // Add AI thought to UI immediately if thread detail cubit is available
+      threadDetailCubit?.addAIThoughtOptimistically(aiThought);
 
-      // Use batch to update both thread and add thought
-      final batch = _firestore.batch();
-      batch.set(
-        _firestore.collection('thoughts').doc(thoughtId),
-        aiThought.toFirestore(),
-      );
-      batch.update(
-        _firestore.collection('threads').doc(threadId),
-        updatedThread.toFirestore(),
-      );
-      await batch.commit();
+      // Save to Firebase in background
+      try {
+        final batch = _firestore.batch();
+        batch.set(
+          _firestore.collection('thoughts').doc(thoughtId),
+          aiThought.toFirestore(),
+        );
+        batch.update(
+          _firestore.collection('threads').doc(threadId),
+          {
+            'thoughtCount': FieldValue.increment(1),
+            'updatedAt': Timestamp.fromDate(DateTime.now()),
+            'lastThoughtPreview': encrypted['encryptedContent']!,
+          },
+        );
+        await batch.commit();
 
-      emit(AIResponseGenerated(response: aiResponse, threadId: threadId));
+        emit(AIResponseGenerated(response: aiResponse, threadId: threadId));
+      } catch (e) {
+        // If Firebase fails, notify the thread detail cubit
+        threadDetailCubit?.handleAIThoughtError('Failed to save AI reflection: $e');
+        emit(AIError('Failed to generate reflection: $e'));
+      }
     } catch (e) {
       emit(AIError('Failed to generate reflection: $e'));
     }

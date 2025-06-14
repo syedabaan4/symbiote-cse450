@@ -114,6 +114,24 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
     }
   }
 
+  // Method for AI cubit to add AI responses optimistically
+  void addAIThoughtOptimistically(Thought aiThought) {
+    final currentState = state;
+    if (currentState is ThreadDetailLoaded) {
+      final updatedThoughts = [...currentState.thoughts, aiThought];
+      final updatedThread = currentState.thread.copyWith(
+        thoughtCount: currentState.thread.thoughtCount + 1,
+        updatedAt: DateTime.now(),
+      );
+      emit(ThreadDetailLoaded(updatedThread, updatedThoughts));
+    }
+  }
+
+  // Method to handle AI thought save failure
+  void handleAIThoughtError(String error) {
+    emit(ThreadDetailError(error));
+  }
+
   String decryptThought(Thought thought) {
     try {
       if (thought.iv.isEmpty) {
