@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../auth/cubit/auth_state.dart';
 import '../../drawer/widgets/app_drawer.dart';
+import '../../moods/cubit/mood_cubit.dart';
+import '../../moods/pages/mood_log_dialog.dart';
 import '../cubit/threads_cubit.dart';
 import '../cubit/threads_state.dart';
 import 'thread_entry_page.dart';
@@ -252,16 +254,36 @@ class HomePage extends StatelessWidget {
                 return const Center(child: CircularProgressIndicator());
               },
             ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ThreadEntryPage(),
-                  ),
-                );
-              },
-              child: const Icon(Icons.add),
+            floatingActionButton: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Mood logging button
+                FloatingActionButton(
+                  onPressed: () async {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const MoodLogDialog(),
+                    );
+                  },
+                  heroTag: "mood",
+                  backgroundColor: Colors.purple.shade600,
+                  child: const Icon(Icons.sentiment_satisfied_alt, color: Colors.white),
+                ),
+                const SizedBox(height: 12),
+                // Add thread button
+                FloatingActionButton(
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ThreadEntryPage(),
+                      ),
+                    );
+                  },
+                  heroTag: "thread",
+                  child: const Icon(Icons.add),
+                ),
+              ],
             ),
           );
         },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../tasks/pages/tasks_page.dart';
+import '../../moods/pages/mood_tracker_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../auth/cubit/auth_state.dart';
@@ -60,8 +61,13 @@ class AppDrawer extends StatelessWidget {
                       context,
                       'Mood',
                       onTap: () {
-                        // TODO: Navigate to mood tracker
                         Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MoodTrackerPage(),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 4),
