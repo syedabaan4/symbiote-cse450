@@ -298,11 +298,11 @@ class _TaskItem extends StatelessWidget {
             ),
             // Delete button
             IconButton(
-              onPressed: () => _showDeleteConfirmation(context),
-              icon: Icon(
-                Icons.delete_outline,
-                color: Colors.grey.shade400,
-              ),
+          onPressed: () => _showDeleteConfirmation(context),
+          icon: Icon(
+            Icons.delete_outline,
+            color: Colors.grey.shade400,
+          ),
             ),
           ],
         ),

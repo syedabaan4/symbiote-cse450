@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../tasks/pages/tasks_page.dart';
 import '../../moods/pages/mood_tracker_page.dart';
 import '../../settings/pages/settings_page.dart';
+import '../../export/pages/export_page.dart';
+import '../../export/cubit/export_cubit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../auth/cubit/auth_state.dart';
@@ -76,8 +78,16 @@ class AppDrawer extends StatelessWidget {
                       context,
                       'Export',
                       onTap: () {
-                        // TODO: Navigate to export
                         Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BlocProvider(
+                              create: (context) => ExportCubit(),
+                              child: const ExportPage(),
+                            ),
+                          ),
+                        );
                       },
                     ),
       
