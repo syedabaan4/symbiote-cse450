@@ -7,6 +7,7 @@ import 'package:symbiote/features/auth/cubit/auth_state.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'features/auth/cubit/auth_cubit.dart';
 import 'features/auth/pages/login_page.dart';
+import 'features/auth/pages/pin_auth_page.dart';
 import 'features/thoughts/cubit/threads_cubit.dart';
 import 'features/thoughts/cubit/thread_detail_cubit.dart';
 import 'features/ai/cubit/ai_cubit.dart';
@@ -59,6 +60,8 @@ class MainApp extends StatelessWidget {
           builder: (context, state) {
             if (state is Authenticated) {
               return const HomePage();
+            } else if (state is LocalAuthRequired) {
+              return const PinAuthPage();
             }
             return const LoginPage();
           },

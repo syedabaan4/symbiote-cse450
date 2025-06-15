@@ -30,4 +30,22 @@ class AuthError extends AuthState {
 
   @override
   List<Object?> get props => [message];
+}
+
+class LocalAuthRequired extends AuthState {
+  final User user;
+
+  const LocalAuthRequired(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
+class LocalAuthSuccess extends AuthState {
+  final User user;
+
+  const LocalAuthSuccess(this.user);
+
+  @override
+  List<Object?> get props => [user];
 } 
