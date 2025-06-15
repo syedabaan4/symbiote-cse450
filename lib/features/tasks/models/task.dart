@@ -11,6 +11,8 @@ class Task extends Equatable {
   final String userId;
   final String? sourceThreadId; // Optional: track which thread generated this task
   final String? sourceThoughtId; // Optional: track which AI thought generated this task
+  final DateTime? reminderDateTime; // New field for reminder date/time
+  final int? notificationId; // New field for notification ID
 
   const Task({
     required this.id,
@@ -22,6 +24,8 @@ class Task extends Equatable {
     required this.userId,
     this.sourceThreadId,
     this.sourceThoughtId,
+    this.reminderDateTime,
+    this.notificationId,
   });
 
   factory Task.fromFirestore(DocumentSnapshot doc) {
@@ -36,6 +40,10 @@ class Task extends Equatable {
       userId: data['userId'] as String,
       sourceThreadId: data['sourceThreadId'] as String?,
       sourceThoughtId: data['sourceThoughtId'] as String?,
+      reminderDateTime: data['reminderDateTime'] != null 
+          ? (data['reminderDateTime'] as Timestamp).toDate()
+          : null,
+      notificationId: data['notificationId'] as int?,
     );
   }
 
@@ -49,6 +57,10 @@ class Task extends Equatable {
       'userId': userId,
       'sourceThreadId': sourceThreadId,
       'sourceThoughtId': sourceThoughtId,
+      'reminderDateTime': reminderDateTime != null 
+          ? Timestamp.fromDate(reminderDateTime!)
+          : null,
+      'notificationId': notificationId,
     };
   }
 
@@ -62,6 +74,8 @@ class Task extends Equatable {
     String? userId,
     String? sourceThreadId,
     String? sourceThoughtId,
+    DateTime? reminderDateTime,
+    int? notificationId,
   }) {
     return Task(
       id: id ?? this.id,
@@ -73,6 +87,8 @@ class Task extends Equatable {
       userId: userId ?? this.userId,
       sourceThreadId: sourceThreadId ?? this.sourceThreadId,
       sourceThoughtId: sourceThoughtId ?? this.sourceThoughtId,
+      reminderDateTime: reminderDateTime ?? this.reminderDateTime,
+      notificationId: notificationId ?? this.notificationId,
     );
   }
 
@@ -87,5 +103,7 @@ class Task extends Equatable {
         userId,
         sourceThreadId,
         sourceThoughtId,
+        reminderDateTime,
+        notificationId,
       ];
 } 

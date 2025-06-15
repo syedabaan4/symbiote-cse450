@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/task.dart';
 import 'tasks_state.dart';
+import '../../../services/notification_service.dart';
 
 class TasksCubit extends Cubit<TasksState> {
   final FirebaseFirestore _firestore;
@@ -210,6 +211,134 @@ class TasksCubit extends Cubit<TasksState> {
       }
     } catch (e) {
       emit(TasksError('Failed to delete task: ${e.toString()}'));
+    }
+  }
+
+  Future<void> setTaskReminder(String taskId, DateTime reminderDateTime) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        emit(const TasksError('User not authenticated'));
+        return;
+      }
+
+      // Get current state
+      final currentState = state;
+      if (currentState is! TasksLoaded) return;
+
+      // Find the task
+      final taskIndex = currentState.tasks.indexWhere((task) => task.id == taskId);
+      if (taskIndex == -1) {
+        emit(const TasksError('Task not found'));
+        return;
+      }
+
+      final tasks = List<Task>.from(currentState.tasks);
+      final originalTask = tasks[taskIndex];
+
+      // Cancel existing notification if any
+      if (originalTask.notificationId != null) {
+        await NotificationService().cancelNotification(originalTask.notificationId!);
+      }
+
+      // Generate new notification ID
+      final notificationId = NotificationService().generateNotificationId();
+
+      // Update task with reminder
+      final updatedTask = originalTask.copyWith(
+        reminderDateTime: reminderDateTime,
+        notificationId: notificationId,
+        updatedAt: DateTime.now(),
+      );
+      tasks[taskIndex] = updatedTask;
+
+      // Update UI immediately
+      emit(TasksLoaded(tasks));
+
+      // Schedule notification
+      await NotificationService().scheduleTaskReminder(
+        notificationId: notificationId,
+        taskContent: originalTask.content,
+        scheduledTime: reminderDateTime,
+      );
+
+      // Update Firebase in background
+      try {
+        await _firestore
+            .collection('tasks')
+            .doc(taskId)
+            .update(updatedTask.toFirestore());
+      } catch (e) {
+        // If Firebase update fails, revert the UI change
+        tasks[taskIndex] = originalTask;
+        emit(TasksLoaded(tasks));
+        emit(TasksError('Failed to set reminder: ${e.toString()}'));
+      }
+    } catch (e) {
+      emit(TasksError('Failed to set reminder: ${e.toString()}'));
+    }
+  }
+
+  Future<void> removeTaskReminder(String taskId) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        emit(const TasksError('User not authenticated'));
+        return;
+      }
+
+      // Get current state
+      final currentState = state;
+      if (currentState is! TasksLoaded) return;
+
+      // Find the task
+      final taskIndex = currentState.tasks.indexWhere((task) => task.id == taskId);
+      if (taskIndex == -1) {
+        emit(const TasksError('Task not found'));
+        return;
+      }
+
+      final tasks = List<Task>.from(currentState.tasks);
+      final originalTask = tasks[taskIndex];
+
+      // Cancel existing notification if any
+      if (originalTask.notificationId != null) {
+        await NotificationService().cancelNotification(originalTask.notificationId!);
+      }
+
+      // Update task to remove reminder (create new instance to clear nullable fields)
+      final updatedTask = Task(
+        id: originalTask.id,
+        content: originalTask.content,
+        category: originalTask.category,
+        isCompleted: originalTask.isCompleted,
+        createdAt: originalTask.createdAt,
+        updatedAt: DateTime.now(),
+        userId: originalTask.userId,
+        sourceThreadId: originalTask.sourceThreadId,
+        sourceThoughtId: originalTask.sourceThoughtId,
+        reminderDateTime: null,
+        notificationId: null,
+      );
+      tasks[taskIndex] = updatedTask;
+
+      // Update UI immediately
+      emit(TasksLoaded(tasks));
+
+      // Update Firebase in background
+      try {
+        await _firestore
+            .collection('tasks')
+            .doc(taskId)
+            .update(updatedTask.toFirestore());
+      } catch (e) {
+        // If Firebase update fails, revert the UI change
+        tasks[taskIndex] = originalTask;
+        emit(TasksLoaded(tasks));
+        emit(TasksError('Failed to remove reminder: ${e.toString()}'));
+      }
+    } catch (e) {
+      emit(TasksError('Failed to remove reminder: ${e.toString()}'));
     }
   }
 } 
