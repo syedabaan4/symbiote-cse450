@@ -47,7 +47,6 @@ class _SettingsPageState extends State<SettingsPage> {
       });
 
       if (!value) {
-        // Cancel all notifications when reminders are disabled
         await NotificationService().cancelAllNotifications();
       }
 
@@ -92,18 +91,15 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _toggleLocalAuth(bool value) async {
     try {
       if (value) {
-        // Navigate to PIN setup
-        final result = await Navigator.push(
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => const PinSetupPage(),
           ),
         );
         
-        // Refresh settings after setup
         _loadSettings();
       } else {
-        // Disable local auth
         await context.read<AuthCubit>().disableLocalAuth();
         setState(() {
           _localAuthEnabled = false;
@@ -199,7 +195,6 @@ class _SettingsPageState extends State<SettingsPage> {
     if (confirmed == true && mounted) {
       await context.read<AuthCubit>().signOut();
       
-      // Navigate back to root and let main.dart handle the auth state
       if (mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
@@ -211,26 +206,22 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
         elevation: 0,
         title: Text(
           'Settings',
-          style: GoogleFonts.inter(
-            fontSize: 24,
+          style: GoogleFonts.pixelifySans(
+            fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
-        iconTheme: IconThemeData(color: Colors.grey.shade700),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.grey.shade700),
-          onPressed: () => Navigator.pop(context),
-        ),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -416,10 +407,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ],
                     ),
                   ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // (Additional settings widgets can be added here in the future)
+                                    
                 ],
               ),
             ),
