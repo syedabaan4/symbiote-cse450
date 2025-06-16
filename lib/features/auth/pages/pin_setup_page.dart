@@ -56,20 +56,20 @@ class _PinSetupPageState extends State<PinSetupPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
+        backgroundColor: Colors.deepPurpleAccent,
+        elevation: 1,
         title: Text(
           'Setup PIN',
-          style: GoogleFonts.inter(
+          style: GoogleFonts.pixelifySans(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
-        iconTheme: IconThemeData(color: Colors.grey.shade700),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.fromLTRB(24.0, 0, 24, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -100,6 +100,9 @@ class _PinSetupPageState extends State<PinSetupPage> {
               obscureText: _isObscured,
               keyboardType: TextInputType.number,
               maxLength: 6,
+              style: TextStyle(
+                letterSpacing: 10,
+              ),
               decoration: InputDecoration(
                 labelText: 'Enter PIN',
                 border: OutlineInputBorder(
@@ -118,13 +121,16 @@ class _PinSetupPageState extends State<PinSetupPage> {
               ),
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             
             TextField(
               controller: _confirmPinController,
               obscureText: _isConfirmObscured,
               keyboardType: TextInputType.number,
               maxLength: 6,
+              style: TextStyle(
+                letterSpacing: 10,
+              ),
               decoration: InputDecoration(
                 labelText: 'Confirm PIN',
                 border: OutlineInputBorder(
@@ -143,14 +149,14 @@ class _PinSetupPageState extends State<PinSetupPage> {
               ),
             ),
             
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
             
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _setupPin,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueGrey.shade700,
+                  backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
