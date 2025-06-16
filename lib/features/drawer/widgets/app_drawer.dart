@@ -91,7 +91,6 @@ class AppDrawer extends StatelessWidget {
                       },
                     ),
       
-                    // Bottom items
                     _buildDrawerItem(
                       context,
                       'Settings',
@@ -103,15 +102,6 @@ class AppDrawer extends StatelessWidget {
                             builder: (context) => const SettingsPage(),
                           ),
                         );
-                      },
-                    ),
-                    const SizedBox(height: 4),
-                    _buildDrawerItem(
-                      context,
-                      'Help',
-                      onTap: () {
-                        // TODO: Navigate to help
-                        Navigator.pop(context);
                       },
                     ),
       
@@ -128,7 +118,6 @@ class AppDrawer extends StatelessWidget {
                     padding: const EdgeInsets.all(24),
                     child: Row(
                       children: [
-                        // User avatar
                         CircleAvatar(
                           radius: 20,
                           backgroundColor: Colors.white.withValues(
@@ -146,7 +135,6 @@ class AppDrawer extends StatelessWidget {
                               : null,
                         ),
                         const SizedBox(width: 12),
-                        // User name
                         Expanded(
                           child: Text(
                             state.user.displayName ??
@@ -193,8 +181,8 @@ class AppDrawer extends StatelessWidget {
         ),
         child: Text(
           title,
-          style: GoogleFonts.inter(
-            fontSize: 16,
+          style: GoogleFonts.pixelifySans(
+            fontSize: 18,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
             color: Colors.black.withValues(alpha: (isSelected ? 1.0 : 0.9)),
           ),
