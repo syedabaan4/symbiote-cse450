@@ -87,17 +87,17 @@ class _ExportPageState extends State<ExportPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
         elevation: 0,
         title: Text(
           'Export Data',
-          style: GoogleFonts.inter(
-            fontSize: 24,
+          style: GoogleFonts.pixelifySans(
+            fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
-        iconTheme: IconThemeData(color: Colors.grey.shade700),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: BlocListener<ExportCubit, ExportState>(
         listener: (context, state) {
@@ -146,7 +146,7 @@ class _ExportPageState extends State<ExportPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    ...['• All threads and thoughts', '• All mood entries', '• Export metadata']
+                    ...['• All threads and thoughts', '• All mood entries',]
                         .map((item) => Padding(
                               padding: const EdgeInsets.only(left: 16, bottom: 4),
                               child: Text(
@@ -162,9 +162,9 @@ class _ExportPageState extends State<ExportPage> {
                     Text(
                       'The file will be encrypted with your password and can be decrypted using CyberChef.',
                       style: GoogleFonts.inter(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: Colors.blue.shade600,
+                        color: Colors.blue.shade700,
                       ),
                     ),
                   ],
@@ -220,7 +220,7 @@ class _ExportPageState extends State<ExportPage> {
                 builder: (context, state) {
                   final isLoading = state is ExportLoading;
                   
-                  return Container(
+                  return SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: isLoading ? null : _exportData,
@@ -229,7 +229,7 @@ class _ExportPageState extends State<ExportPage> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       child: isLoading
@@ -249,7 +249,7 @@ class _ExportPageState extends State<ExportPage> {
                 },
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
             ],
           ),
         ),
