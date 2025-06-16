@@ -17,19 +17,19 @@ class TasksPage extends StatelessWidget {
     });
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
         elevation: 0,
         title: Text(
           'Tasks',
-          style: GoogleFonts.inter(
-            fontSize: 24,
+          style: GoogleFonts.pixelifySans(
+            fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
-        iconTheme: IconThemeData(color: Colors.grey.shade700),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: BlocConsumer<TasksCubit, TasksState>(
         listener: (context, state) {
@@ -43,7 +43,7 @@ class TasksPage extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                backgroundColor: Colors.red.shade600,
+                backgroundColor: Colors.red.shade400,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -55,9 +55,10 @@ class TasksPage extends StatelessWidget {
         builder: (context, state) {
           if (state is TasksLoading) {
             return Center(
-              child: LoadingAnimationWidget.fourRotatingDots(
-                color: Colors.black,
-                size: 30,
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: LoadingAnimationWidget.fourRotatingDots(color: Colors.blueGrey, size: 24)
               ),
             );
           }
@@ -70,15 +71,34 @@ class TasksPage extends StatelessWidget {
                   Text(
                     'Error loading tasks',
                     style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade600,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade700,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Something went wrong. Please try again.',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => context.read<TasksCubit>().loadTasks(),
-                    child: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.shade800,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
+                    child: Text(
+                      'Retry',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                    ),
                   ),
                 ],
               ),
@@ -88,49 +108,46 @@ class TasksPage extends StatelessWidget {
           if (state is TasksLoaded) {
             if (state.tasks.isEmpty) {
               return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.task_alt,
-                      size: 64,
-                      color: Colors.grey.shade300,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No tasks yet',
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade600,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'No tasks yet',
+                        style: GoogleFonts.inter(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Use the Task Organizer AI agent to create tasks from your thoughts',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.grey.shade500,
+                      const SizedBox(height: 8),
+                      Text(
+                        'Use the Task Organizer AI agent to\ncreate tasks from your thoughts',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          color: Colors.grey.shade500,
+                          height: 1.4,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             }
 
-            // Group tasks by category, then separate completed and pending within each category
+            // Group tasks by category
             final tasksByCategory = <String, List<Task>>{};
             
             for (final task in state.tasks) {
-              final category = task.category ?? 'Uncategorized';
+              final category = task.category ?? 'Personal';
               tasksByCategory.putIfAbsent(category, () => []);
               tasksByCategory[category]!.add(task);
             }
 
             return ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               children: [
                 // Display tasks grouped by category
                 ...tasksByCategory.entries.map((entry) {
@@ -141,77 +158,106 @@ class TasksPage extends StatelessWidget {
                   final pendingTasks = categoryTasks.where((task) => !task.isCompleted).toList();
                   final completedTasks = categoryTasks.where((task) => task.isCompleted).toList();
                   
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Category header with task count
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 12, top: 16),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.blueGrey.shade50,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.blueGrey.shade200),
-                              ),
-                              child: Text(
-                                category,
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.blueGrey.shade700,
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Category header
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  category,
+                                  style: GoogleFonts.pixelifySans(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade800,
+                                    letterSpacing: 0.3,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${categoryTasks.length} ${categoryTasks.length == 1 ? 'task' : 'tasks'}',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.grey.shade500,
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${categoryTasks.length}',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // Pending tasks in this category
-                      ...pendingTasks.map((task) => _TaskItem(
-                        task: task,
-                        onToggle: () => context.read<TasksCubit>().toggleTaskCompletion(task.id),
-                        onDelete: () => context.read<TasksCubit>().deleteTask(task.id),
-                        onSetReminder: (dateTime) => context.read<TasksCubit>().setTaskReminder(task.id, dateTime),
-                        onRemoveReminder: () => context.read<TasksCubit>().removeTaskReminder(task.id),
-                      )),
-                      
-                      // Completed tasks in this category (if any)
-                      if (completedTasks.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          'Completed in ${category}',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade500,
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        ...completedTasks.map((task) => _TaskItem(
-                          task: task,
-                          onToggle: () => context.read<TasksCubit>().toggleTaskCompletion(task.id),
-                          onDelete: () => context.read<TasksCubit>().deleteTask(task.id),
-                          onSetReminder: (dateTime) => context.read<TasksCubit>().setTaskReminder(task.id, dateTime),
-                          onRemoveReminder: () => context.read<TasksCubit>().removeTaskReminder(task.id),
-                        )),
+                        
+                        // Tasks content
+                        if (pendingTasks.isNotEmpty || completedTasks.isNotEmpty) ...[
+                          const Divider(height: 1, color: Color(0xFFE5E7EB)),
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Pending tasks
+                                ...pendingTasks.map((task) => _TaskItem(
+                                  task: task,
+                                  onToggle: () => context.read<TasksCubit>().toggleTaskCompletion(task.id),
+                                  onDelete: () => context.read<TasksCubit>().deleteTask(task.id),
+                                  onSetReminder: (dateTime) => context.read<TasksCubit>().setTaskReminder(task.id, dateTime),
+                                  onRemoveReminder: () => context.read<TasksCubit>().removeTaskReminder(task.id),
+                                )),
+                                
+                                // Completed tasks section
+                                if (completedTasks.isNotEmpty) ...[
+                                  if (pendingTasks.isNotEmpty) 
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 12),
+                                      child: Divider(height: 1, color: Color(0xFFF3F4F6)),
+                                    ),
+                                  Text(
+                                    'Completed',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey.shade500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  ...completedTasks.map((task) => _TaskItem(
+                                    task: task,
+                                    onToggle: () => context.read<TasksCubit>().toggleTaskCompletion(task.id),
+                                    onDelete: () => context.read<TasksCubit>().deleteTask(task.id),
+                                    onSetReminder: (dateTime) => context.read<TasksCubit>().setTaskReminder(task.id, dateTime),
+                                    onRemoveReminder: () => context.read<TasksCubit>().removeTaskReminder(task.id),
+                                  )),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
-                      
-                      const SizedBox(height: 16),
-                    ],
+                    ),
                   );
-                }).toList(),
+                }),
               ],
             );
           }
@@ -240,72 +286,117 @@ class _TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: task.isCompleted ? Colors.grey.shade50 : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: task.isCompleted ? Colors.grey.shade200 : Colors.grey.shade300,
-          width: 1,
-        ),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        leading: Checkbox(
-          value: task.isCompleted,
-          onChanged: (_) => onToggle(),
-          activeColor: Colors.green.shade600,
-        ),
-        title: Text(
-          task.content,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: task.isCompleted ? Colors.grey.shade500 : Colors.black,
-            decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-          ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Reminder button
-            PopupMenuButton<String>(
-              icon: Icon(
-                task.reminderDateTime != null ? Icons.notifications_active : Icons.notifications_none,
-                color: task.reminderDateTime != null ? Colors.blue.shade600 : Colors.grey.shade400,
+          return Container(
+        margin: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          // Checkbox
+          GestureDetector(
+            onTap: onToggle,
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: task.isCompleted ? Colors.grey.shade700 : Colors.transparent,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: task.isCompleted ? Colors.grey.shade700 : Colors.grey.shade300,
+                  width: 2,
+                ),
               ),
-              onSelected: (value) => _handleReminderAction(context, value),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'set_1hour',
-                  child: Text('Remind in 1 hour', style: GoogleFonts.inter()),
-                ),
-                PopupMenuItem(
-                  value: 'set_tomorrow',
-                  child: Text('Remind tomorrow', style: GoogleFonts.inter()),
-                ),
-                PopupMenuItem(
-                  value: 'set_custom',
-                  child: Text('Custom reminder', style: GoogleFonts.inter()),
-                ),
-                if (task.reminderDateTime != null)
-                  PopupMenuItem(
-                    value: 'remove',
-                    child: Text('Remove reminder', style: GoogleFonts.inter(color: Colors.red)),
-                  ),
-              ],
+              child: task.isCompleted
+                  ? Icon(
+                      Icons.check,
+                      size: 12,
+                      color: Colors.white,
+                    )
+                  : null,
             ),
-            // Delete button
-            IconButton(
-          onPressed: () => _showDeleteConfirmation(context),
-          icon: Icon(
-            Icons.delete_outline,
-            color: Colors.grey.shade400,
           ),
+          
+          const SizedBox(width: 12),
+          
+          // Task content
+          Expanded(
+            child: Text(
+              task.content,
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: task.isCompleted ? Colors.grey.shade400 : Colors.grey.shade800,
+                decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                height: 1.4,
+              ),
             ),
-          ],
-        ),
+          ),
+          
+          const SizedBox(width: 12),
+          
+          // Action buttons
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Reminder button
+              PopupMenuButton<String>(
+                icon: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: task.reminderDateTime != null 
+                        ? Colors.blue.shade50 
+                        : Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    task.reminderDateTime != null ? Icons.notifications_active : Icons.notifications_none,
+                    size: 16,
+                    color: task.reminderDateTime != null ? Colors.blue.shade600 : Colors.grey.shade400,
+                  ),
+                ),
+                onSelected: (value) => _handleReminderAction(context, value),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'set_1hour',
+                    child: Text('Remind in 1 hour', style: GoogleFonts.inter()),
+                  ),
+                  PopupMenuItem(
+                    value: 'set_tomorrow',
+                    child: Text('Remind tomorrow', style: GoogleFonts.inter()),
+                  ),
+                  PopupMenuItem(
+                    value: 'set_custom',
+                    child: Text('Custom reminder', style: GoogleFonts.inter()),
+                  ),
+                  if (task.reminderDateTime != null)
+                    PopupMenuItem(
+                      value: 'remove',
+                      child: Text('Remove reminder', style: GoogleFonts.inter(color: Colors.red)),
+                    ),
+                ],
+              ),
+              
+              const SizedBox(width: 8),
+              
+              // Delete button
+              GestureDetector(
+                onTap: () => _showDeleteConfirmation(context),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.delete_outline,
+                    size: 16,
+                    color: Colors.red.shade400,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -315,6 +406,7 @@ class _TaskItem extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             'Delete Task',
             style: GoogleFonts.inter(
@@ -389,6 +481,7 @@ class _TaskItem extends StatelessWidget {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text('Set Custom Reminder', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -409,7 +502,7 @@ class _TaskItem extends StatelessWidget {
               ),
               ListTile(
                 title: Text('Time', style: GoogleFonts.inter()),
-                subtitle: Text('${selectedTime.format(context)}'),
+                subtitle: Text(selectedTime.format(context)),
                 trailing: const Icon(Icons.access_time),
                 onTap: () async {
                   final time = await showTimePicker(context: context, initialTime: selectedTime);
@@ -442,4 +535,4 @@ class _TaskItem extends StatelessWidget {
       ),
     );
   }
-} 
+}

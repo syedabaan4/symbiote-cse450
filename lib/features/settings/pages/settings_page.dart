@@ -270,7 +270,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         Switch(
                           value: _remindersEnabled,
                           onChanged: _toggleReminders,
-                          activeColor: Colors.black,
+                          activeColor: Colors.deepPurple,
                         ),
                       ],
                     ),
@@ -325,7 +325,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             Switch(
                               value: _localAuthEnabled,
                               onChanged: _toggleLocalAuth,
-                              activeColor: Colors.black,
+                              activeColor: Colors.deepPurple,
                             ),
                           ],
                         ),
