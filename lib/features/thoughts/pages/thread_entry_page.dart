@@ -90,6 +90,102 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
     }
   }
 
+  void _showAgentSelectionBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  Text(
+                    'Pick your agent',
+                    style: GoogleFonts.inter(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Agent cards
+            Expanded(
+              child: PageView.builder(
+                itemCount: AIAgent.availableAgents.length,
+                padEnds: false,
+                controller: PageController(viewportFraction: 1.0),
+                itemBuilder: (context, index) {
+                  final agent = AIAgent.availableAgents[index];
+                  final isSelected = _selectedAgent == agent.type;
+                  
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 24),
+                    child: _AgentCard(
+                      agent: agent,
+                      isSelected: isSelected,
+                      onTap: () {
+                        setState(() {
+                          _selectedAgent = agent.type;
+                        });
+                        Navigator.pop(context);
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+            
+            // Dots indicator
+            Container(
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  AIAgent.availableAgents.length,
+                  (index) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -251,70 +347,46 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Choose your AI companion:',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade800,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<AIAgentType>(
-                            value: _selectedAgent,
-                            hint: Text(
-                              'Select an AI agent',
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
+                        GestureDetector(
+                        onTap: () => _showAgentSelectionBottomSheet(context),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _selectedAgent != null
+                                    ? Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            AIAgent.getByType(_selectedAgent!).name,
+                                            style: GoogleFonts.pixelifySans(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.grey.shade800,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Text(
+                                        'Select an AI agent',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 16,
+                                          color: Colors.grey.shade500,
+                                        ),
+                                      ),
+                              ),
+                              Icon(
+                                Icons.expand_more,
                                 color: Colors.grey.shade600,
                               ),
-                            ),
-                            isExpanded: true,
-                            icon: Icon(
-                              Icons.expand_more,
-                              color: Colors.grey.shade600,
-                            ),
-                            items: AIAgent.availableAgents.map((agent) {
-                              return DropdownMenuItem<AIAgentType>(
-                                value: agent.type,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      agent.name,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    Text(
-                                      agent.description,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (AIAgentType? value) {
-                              setState(() {
-                                _selectedAgent = value;
-                              });
-                            },
+                            ],
                           ),
                         ),
                       ),
@@ -334,20 +406,20 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
                       minLines: 10, // Minimum height to fill the space
                       textAlignVertical: TextAlignVertical.top,
                       style: GoogleFonts.inter(
-                        fontSize: 26,
+                        fontSize: 20,
                         fontWeight: FontWeight.w500,
-                        height: 1.6,
+                        height: 1.3,
                         color: Colors.grey.shade900,
-                        letterSpacing: 0.5,
+                        letterSpacing: -0.2,
                       ),
                       decoration: InputDecoration(
                         hintText: widget.existingThreadId != null 
                             ? 'Continue your thoughts...'
                             : 'Start a new thread...',
                         hintStyle: GoogleFonts.inter(
-                          fontSize: 26,
+                          fontSize: 20,
                           fontWeight: FontWeight.w400,
-                          height: 1.6,
+                          height: 1.3,
                           color: Colors.grey.shade400,
                           letterSpacing: -0.2,
                         ),
@@ -363,6 +435,105 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AgentCard extends StatelessWidget {
+  final AIAgent agent;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _AgentCard({
+    required this.agent,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  String _getBackgroundImage(AIAgentType type) {
+    switch (type) {
+      case AIAgentType.reflective:
+        return 'assets/images/therapeutic.png';
+      case AIAgentType.creative:
+        return 'assets/images/intense.png';
+      case AIAgentType.organize:
+        return 'assets/images/organizer.png';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final backgroundImage = _getBackgroundImage(agent.type);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(backgroundImage),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  
+                  // Agent name
+                  Text(
+                    agent.name,
+                    style: GoogleFonts.pixelifySans(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  // Agent description
+                  Text(
+                    agent.description,
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      height: 1.4,
+                    ),
+                  ),
+                  
+                  const Spacer(),
+                  
+                  // Add to vault button
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      isSelected ? 'Selected' : 'Select Agent',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 
 enum AIAgentType {
   reflective,
-  analytical,
   creative,
   organize,
 }
@@ -26,12 +25,6 @@ class AIAgent extends Equatable {
       name: 'Reflective Sage',
       description: 'Helps you reflect deeply on your thoughts and experiences',
       systemPrompt: 'You are a supportive and insightful journal assistant. When I share my thoughts, please reflect on them and offer a fresh perspective or a gentle inquiry to help me explore further. Focus on my feelings and experiences. Your responses should be in plain text only, with no special formatting. Please limit your responses to a maximum of 80 words. Avoid lists or bullet points. Just provide a continuous, thoughtful response.',
-    ),
-    AIAgent(
-      type: AIAgentType.analytical,
-      name: 'Analytical Mind',
-      description: 'Provides logical analysis and structured thinking',
-      systemPrompt: 'You are an analytical journal assistant. When I share my thoughts, please provide logical analysis and help me break down complex situations. Your responses should be in plain text only, with no special formatting. Please limit your responses to a maximum of 80 words. Avoid lists or bullet points. Just provide a continuous, analytical response.',
     ),
     AIAgent(
       type: AIAgentType.creative,
