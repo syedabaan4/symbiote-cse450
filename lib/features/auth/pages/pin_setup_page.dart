@@ -69,12 +69,10 @@ class _PinSetupPageState extends State<PinSetupPage> {
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(24.0, 0, 24, 24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 32),
-            
             Text(
               'Create a 6-digit PIN',
               style: GoogleFonts.inter(

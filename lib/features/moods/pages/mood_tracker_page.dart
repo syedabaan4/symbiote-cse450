@@ -20,17 +20,17 @@ class MoodTrackerPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
         elevation: 0,
         title: Text(
           'Mood Tracker',
-          style: GoogleFonts.inter(
-            fontSize: 24,
+          style: GoogleFonts.pixelifySans(
+            fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
-        iconTheme: IconThemeData(color: Colors.grey.shade700),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: BlocConsumer<MoodCubit, MoodState>(
         listener: (context, state) {
@@ -57,7 +57,7 @@ class MoodTrackerPage extends StatelessWidget {
           if (state is MoodLoading) {
             return Center(
               child: LoadingAnimationWidget.fourRotatingDots(
-                color: Colors.purple,
+                color: Colors.deepPurple,
                 size: 30,
               ),
             );
@@ -104,26 +104,13 @@ class MoodTrackerPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Heatmap calendar
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade200),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.shade100,
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
                       child: Column(
                         children: [
                           Text(
                             'Your Mood Journey',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.pixelifySans(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
@@ -136,7 +123,7 @@ class MoodTrackerPage extends StatelessWidget {
                             datasets: heatmapData,
                             size: 32,
                             colorTipSize: 32,
-                            margin: const EdgeInsets.all(2),
+                            margin: const EdgeInsets.all(4),
                             colorsets: {
                               1: Colors.red.shade300,
                               2: Colors.orange.shade300,
@@ -174,7 +161,7 @@ class MoodTrackerPage extends StatelessWidget {
             );
           }
 
-          return const Center(child: CircularProgressIndicator());
+          return  Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.deepPurple, size: 30));
         },
       ),
     );
