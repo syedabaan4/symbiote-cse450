@@ -64,14 +64,10 @@ class ThreadsCubit extends Cubit<ThreadsState> {
       await _encryptionService.initialize(user);
       final encrypted = _encryptionService.encryptText(content);
 
-      // Generate title from content (first 50 characters)
-      final title = _generateThreadTitle(content);
-      
       // Create thread
       final threadId = _firestore.collection('threads').doc().id;
       final thread = Thread(
         id: threadId,
-        title: title,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         userId: user.uid,
@@ -134,23 +130,6 @@ class ThreadsCubit extends Cubit<ThreadsState> {
       emit(ThreadDeleted(threadId));
     } catch (e) {
       emit(ThreadsError('Failed to delete thread: ${e.toString()}'));
-    }
-  }
-
-  String _generateThreadTitle(String content) {
-    final cleaned = content.trim();
-    if (cleaned.length <= 50) {
-      return cleaned;
-    }
-    
-    // Find the last complete word within 50 characters
-    final truncated = cleaned.substring(0, 50);
-    final lastSpaceIndex = truncated.lastIndexOf(' ');
-    
-    if (lastSpaceIndex > 20) { // Ensure we have a reasonable title length
-      return '${truncated.substring(0, lastSpaceIndex)}...';
-    } else {
-      return '${truncated}...';
     }
   }
 

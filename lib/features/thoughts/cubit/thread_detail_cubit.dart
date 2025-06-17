@@ -138,12 +138,4 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
       return '[Failed to decrypt thought]';
     }
   }
-
-  String decryptThreadTitle(Thread thread) {
-    try {
-      return thread.title; // Thread titles are stored in plain text for now
-    } catch (e) {
-      return 'Untitled Thread';
-    }
-  }
 } 

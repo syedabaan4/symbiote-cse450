@@ -4,7 +4,6 @@ import '../../ai/models/ai_agent.dart';
 
 class Thread extends Equatable {
   final String id;
-  final String title; // Generated from first thought or user-defined
   final DateTime createdAt;
   final DateTime updatedAt;
   final String userId;
@@ -12,7 +11,6 @@ class Thread extends Equatable {
 
   const Thread({
     required this.id,
-    required this.title,
     required this.createdAt,
     required this.updatedAt,
     required this.userId,
@@ -23,7 +21,6 @@ class Thread extends Equatable {
     final data = doc.data() as Map<String, dynamic>;
     return Thread(
       id: doc.id,
-      title: data['title'] as String,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
       userId: data['userId'] as String,
@@ -38,7 +35,6 @@ class Thread extends Equatable {
 
   Map<String, dynamic> toFirestore() {
     return {
-      'title': title,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
       'userId': userId,
@@ -56,7 +52,6 @@ class Thread extends Equatable {
   }) {
     return Thread(
       id: id ?? this.id,
-      title: title ?? this.title,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       userId: userId ?? this.userId,
@@ -67,7 +62,6 @@ class Thread extends Equatable {
   @override
   List<Object?> get props => [
         id,
-        title,
         createdAt,
         updatedAt,
         userId,
