@@ -6,14 +6,26 @@ import '../cubit/thread_detail_cubit.dart';
 import '../cubit/threads_state.dart';
 import '../../ai/cubit/ai_cubit.dart';
 import '../../ai/cubit/ai_state.dart';
-import '../../ai/models/ai_agent.dart';
 import '../../tasks/cubit/tasks_cubit.dart';
+import '../widgets/user_thought.dart';
+import '../widgets/expandable_ai_reflection.dart';
 import 'thread_entry_page.dart';
 
 class ThreadDetailPage extends StatelessWidget {
   final String threadId;
+  static final ScrollController _scrollController = ScrollController();
 
   const ThreadDetailPage({super.key, required this.threadId});
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +35,7 @@ class ThreadDetailPage extends StatelessWidget {
     });
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey.shade50,
       body: SafeArea(
         child: MultiBlocListener(
           listeners: [
@@ -125,9 +137,10 @@ class ThreadDetailPage extends StatelessWidget {
                     // Thoughts list
                     Expanded(
                       child: ListView.builder(
+                        controller: _scrollController,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 32,
+                          horizontal: 20,
+                          vertical: 24,
                         ),
                         itemCount: state.thoughts.length,
                         itemBuilder: (context, index) {
@@ -136,227 +149,44 @@ class ThreadDetailPage extends StatelessWidget {
                               .read<ThreadDetailCubit>()
                               .decryptThought(thought);
                           final isAIThought = thought.assistantMode != null;
-                          final isOrganizeAgent =
-                              thought.assistantMode == 'organize';
 
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 26),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (isAIThought) ...[
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.blue.shade50,
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'AI Reflection',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.blue.shade700,
-                                          ),
-                                        ),
+                          if (isAIThought) {
+                            return ExpandableAIReflection(
+                              content: decryptedContent,
+                              threadId: threadId,
+                              thought: thought,
+                              onSaveTasks: () {
+                                context
+                                    .read<TasksCubit>()
+                                    .createTasksFromAIResponse(
+                                      decryptedContent,
+                                      sourceThreadId: threadId,
+                                      sourceThoughtId: thought.id,
+                                    );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Tasks saved successfully',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
                                       ),
-                                      // Dropdown for organize agent
-                                      if (isOrganizeAgent)
-                                        PopupMenuButton<String>(
-                                          icon: Icon(
-                                            Icons.more_vert,
-                                            color: Colors.grey.shade600,
-                                            size: 18,
-                                          ),
-                                          onSelected: (value) {
-                                            if (value == 'save_tasks') {
-                                              context
-                                                  .read<TasksCubit>()
-                                                  .createTasksFromAIResponse(
-                                                    decryptedContent,
-                                                    sourceThreadId: threadId,
-                                                    sourceThoughtId: thought.id,
-                                                  );
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    'Tasks saved successfully',
-                                                    style: GoogleFonts.inter(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                    ),
-                                                  ),
-                                                  backgroundColor:
-                                                      Colors.green.shade600,
-                                                  behavior:
-                                                      SnackBarBehavior.floating,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                  ),
-                                                  
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          itemBuilder: (context) => [
-                                            PopupMenuItem(
-                                              value: 'save_tasks',
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.task_alt,
-                                                    size: 16,
-                                                    color: Colors.grey.shade600,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    'Save to Tasks',
-                                                    style: GoogleFonts.inter(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                    ],
+                                    ),
+                                    backgroundColor: Colors.green.shade600,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
-                                  const SizedBox(height: 8),
-                                ],
-                                Text(
-                                  decryptedContent,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                    height: 1.5,
-                                    color: isAIThought
-                                        ? Colors.black54
-                                        : Colors.black87,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
+                                );
+                              },
+                            );
+                          } else {
+                            return UserThought(
+                                content: decryptedContent,
+                                createdAt: thought.createdAt);
+                          }
                         },
-                      ),
-                    ),
-
-                    // Action buttons
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: Icon(
-                              Icons.arrow_back,
-                              color: Colors.grey.shade600,
-                              size: 24,
-                            ),
-                          ),
-                          const Spacer(),
-
-                          // Reflect button
-                          BlocBuilder<AICubit, AIState>(
-                            builder: (context, aiState) {
-                              final isGenerating = aiState is AIGenerating;
-                              return FloatingActionButton.extended(
-                                onPressed: isGenerating
-                                    ? null
-                                    : () {
-                                        if (state.thread.aiAgentType != null) {
-                                          context
-                                              .read<AICubit>()
-                                              .generateReflection(
-                                                threadId: threadId,
-                                                agentType:
-                                                    state.thread.aiAgentType!,
-                                                threadDetailCubit: context
-                                                    .read<ThreadDetailCubit>(),
-                                              );
-                                        } else {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                'No AI agent assigned to this thread',
-                                                style: GoogleFonts.inter(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                              backgroundColor:
-                                                  Colors.orange.shade600,
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                backgroundColor: isGenerating
-                                    ? Colors.grey.shade300
-                                    : Colors.purple.shade600,
-                                foregroundColor: Colors.white,
-                                icon: isGenerating
-                                    ? LoadingAnimationWidget.staggeredDotsWave(
-                                        color: Colors.white,
-                                        size: 16,
-                                      )
-                                    : const Icon(Icons.auto_awesome),
-                                label: Text(
-                                  isGenerating ? 'Reflecting' : 'Reflect',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          // Add thought button
-                          FloatingActionButton(
-                            onPressed: () async {
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ThreadEntryPage(
-                                    existingThreadId: threadId,
-                                  ),
-                                ),
-                              );
-                            },
-                            backgroundColor: Colors.blueGrey.shade600,
-                            child: const Icon(Icons.add, color: Colors.white),
-                          ),
-                        ],
                       ),
                     ),
                   ],
@@ -368,6 +198,151 @@ class ThreadDetailPage extends StatelessWidget {
           ),
         ),
       ),
+      floatingActionButton: BlocBuilder<ThreadDetailCubit, ThreadDetailState>(
+        builder: (context, state) {
+          if (state is ThreadDetailLoaded && state.thoughts.isNotEmpty) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 0), // Position above bottom bar
+              child: FloatingActionButton.small(
+                onPressed: _scrollToBottom,
+                backgroundColor: Colors.white.withOpacity(0.85),
+                foregroundColor: Colors.grey.shade600,
+                elevation: 1,
+                splashColor: Colors.grey.shade100,
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 16,
+                  color: Colors.grey.shade400,
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar: BlocBuilder<ThreadDetailCubit, ThreadDetailState>(
+        builder: (context, state) {
+          if (state is ThreadDetailLoaded) {
+            return BottomAppBar(
+              color: Colors.deepPurple,
+              elevation: 4,
+              child: SizedBox(
+                height: 20,
+                child: Row(
+                  children: [
+                    // Back button
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      tooltip: 'Back',
+                    ),
+                    const Spacer(),
+                    // Reflect button (centered)
+                    BlocBuilder<AICubit, AIState>(
+                      builder: (context, aiState) {
+                        final isGenerating = aiState is AIGenerating;
+                        return ElevatedButton.icon(
+                          onPressed: isGenerating
+                              ? null
+                              : () {
+                                  if (state.thread.aiAgentType != null) {
+                                    context
+                                        .read<AICubit>()
+                                        .generateReflection(
+                                          threadId: threadId,
+                                          agentType: state.thread.aiAgentType!,
+                                          threadDetailCubit:
+                                              context.read<ThreadDetailCubit>(),
+                                        );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'No AI agent assigned to this thread',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.orange.shade600,
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                          icon: isGenerating
+                              ? LoadingAnimationWidget.staggeredDotsWave(
+                                  color: Colors.black,
+                                  size: 16,
+                                )
+                              : const Icon(Icons.auto_awesome, size: 18),
+                          label: Text(
+                            isGenerating ? 'Reflecting' : 'Reflect',
+                            style: GoogleFonts.pixelifySans(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isGenerating
+                                ? Colors.white
+                                : Colors.white,
+                            foregroundColor: Colors.black,
+                            elevation: 2,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const Spacer(),
+                    // Add button (icon only, on the right)
+                    IconButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ThreadEntryPage(
+                              existingThreadId: threadId,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.black,
+                          size: 20,
+                        ),
+                      ),
+                      tooltip: 'Add thought',
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
-}
+} 
