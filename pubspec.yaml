@@ -31,6 +31,8 @@ dependencies:
   pinput: ^5.0.1
   flutter_dotenv: ^5.2.1
   gpt_markdown: ^1.0.20
+  flutter_native_splash: ^2.4.6
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -42,3 +44,16 @@ flutter:
   assets:
     - .env
     - assets/images/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  image_path: "assets/images/logo.png"
+
+flutter_native_splash:
+  background_image: "assets/images/splash.png"
+  android: true
+  ios: true
+  android_12:
+    image: "assets/images/splash_android12.png" 
+    color: "#311b92" 
+    icon_background_color: "#311b92" 

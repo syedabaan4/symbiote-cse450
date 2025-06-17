@@ -123,7 +123,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
               child: Column(
                 children: [
                   Text(
-                    'Pick your agent',
+                    'Pick your Symbiote',
                     style: GoogleFonts.inter(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
