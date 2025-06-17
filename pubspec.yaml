@@ -38,6 +38,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  bloc_test: ^9.1.7
+  fake_cloud_firestore: ^2.5.2
+  firebase_auth_mocks: ^0.13.0
 
 flutter:
   uses-material-design: true
@@ -52,7 +55,6 @@ flutter_launcher_icons:
 flutter_native_splash:
   background_image: "assets/images/splash.png"
   android: true
-  ios: true
   android_12:
     image: "assets/images/splash_android12.png" 
     color: "#311b92" 

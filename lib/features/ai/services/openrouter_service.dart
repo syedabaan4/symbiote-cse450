@@ -5,7 +5,7 @@ import '../models/ai_agent.dart';
 
 class OpenRouterService {
   static const String _baseUrl = 'https://openrouter.ai/api/v1';
-  static const String _model = 'deepseek/deepseek-r1-0528:free'; 
+  static const String _model = 'openai/gpt-4.1-mini'; 
   
   static final String? _apiKey = dotenv.env['API_KEY'];
   
@@ -26,13 +26,10 @@ class OpenRouterService {
         headers: {
           'Authorization': 'Bearer $_apiKey',
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'symbiote-app', 
-          'X-Title': 'Symbiote Journaling App', 
         },
         body: json.encode({
           'model': _model,
           'messages': messages,
-          'max_tokens': 1000,
           'temperature': 0.7,
           'stream': false,
         }),
