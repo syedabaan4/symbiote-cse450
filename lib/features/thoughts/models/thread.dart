@@ -8,10 +8,7 @@ class Thread extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String userId;
-  final int thoughtCount;
-  final String? lastThoughtPreview; // Encrypted preview of last thought
   final AIAgentType? aiAgentType; // AI agent chosen for this thread
-  final Map<String, dynamic>? metadata;
 
   const Thread({
     required this.id,
@@ -19,10 +16,7 @@ class Thread extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     required this.userId,
-    required this.thoughtCount,
-    this.lastThoughtPreview,
     this.aiAgentType,
-    this.metadata,
   });
 
   factory Thread.fromFirestore(DocumentSnapshot doc) {
@@ -33,15 +27,12 @@ class Thread extends Equatable {
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
       userId: data['userId'] as String,
-      thoughtCount: data['thoughtCount'] as int? ?? 0,
-      lastThoughtPreview: data['lastThoughtPreview'] as String?,
       aiAgentType: data['aiAgentType'] != null 
           ? AIAgentType.values.firstWhere(
               (e) => e.name == data['aiAgentType'],
               orElse: () => AIAgentType.reflective,
             )
           : null,
-      metadata: data['metadata'] as Map<String, dynamic>?,
     );
   }
 
@@ -51,10 +42,7 @@ class Thread extends Equatable {
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
       'userId': userId,
-      'thoughtCount': thoughtCount,
-      'lastThoughtPreview': lastThoughtPreview,
       'aiAgentType': aiAgentType?.name,
-      'metadata': metadata,
     };
   }
 
@@ -64,10 +52,7 @@ class Thread extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? userId,
-    int? thoughtCount,
-    String? lastThoughtPreview,
     AIAgentType? aiAgentType,
-    Map<String, dynamic>? metadata,
   }) {
     return Thread(
       id: id ?? this.id,
@@ -75,10 +60,7 @@ class Thread extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       userId: userId ?? this.userId,
-      thoughtCount: thoughtCount ?? this.thoughtCount,
-      lastThoughtPreview: lastThoughtPreview ?? this.lastThoughtPreview,
       aiAgentType: aiAgentType ?? this.aiAgentType,
-      metadata: metadata ?? this.metadata,
     );
   }
 
@@ -89,9 +71,6 @@ class Thread extends Equatable {
         createdAt,
         updatedAt,
         userId,
-        thoughtCount,
-        lastThoughtPreview,
         aiAgentType,
-        metadata,
       ];
 } 

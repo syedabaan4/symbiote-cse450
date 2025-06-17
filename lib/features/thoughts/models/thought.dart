@@ -7,10 +7,8 @@ class Thought extends Equatable {
   final String encryptedContent;
   final String iv; 
   final DateTime createdAt;
-  final DateTime updatedAt;
   final String userId;
   final String? assistantMode; 
-  final Map<String, dynamic>? metadata; 
 
   const Thought({
     required this.id,
@@ -18,10 +16,8 @@ class Thought extends Equatable {
     required this.encryptedContent,
     required this.iv,
     required this.createdAt,
-    required this.updatedAt,
     required this.userId,
     this.assistantMode,
-    this.metadata,
   });
 
   factory Thought.fromFirestore(DocumentSnapshot doc) {
@@ -32,10 +28,8 @@ class Thought extends Equatable {
       encryptedContent: data['encryptedContent'] as String,
       iv: data['iv'] as String? ?? '', 
       createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
       userId: data['userId'] as String,
       assistantMode: data['assistantMode'] as String?,
-      metadata: data['metadata'] as Map<String, dynamic>?,
     );
   }
 
@@ -45,10 +39,8 @@ class Thought extends Equatable {
       'encryptedContent': encryptedContent,
       'iv': iv,
       'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
       'userId': userId,
       'assistantMode': assistantMode,
-      'metadata': metadata,
     };
   }
 
@@ -58,10 +50,8 @@ class Thought extends Equatable {
     String? encryptedContent,
     String? iv,
     DateTime? createdAt,
-    DateTime? updatedAt,
     String? userId,
     String? assistantMode,
-    Map<String, dynamic>? metadata,
   }) {
     return Thought(
       id: id ?? this.id,
@@ -69,10 +59,8 @@ class Thought extends Equatable {
       encryptedContent: encryptedContent ?? this.encryptedContent,
       iv: iv ?? this.iv,
       createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
       userId: userId ?? this.userId,
       assistantMode: assistantMode ?? this.assistantMode,
-      metadata: metadata ?? this.metadata,
     );
   }
 
@@ -83,9 +71,7 @@ class Thought extends Equatable {
         encryptedContent,
         iv,
         createdAt,
-        updatedAt,
         userId,
         assistantMode,
-        metadata,
       ];
 } 

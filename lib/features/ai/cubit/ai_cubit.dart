@@ -100,7 +100,6 @@ class AICubit extends Cubit<AIState> {
         encryptedContent: encrypted['encryptedContent']!,
         iv: encrypted['iv']!,
         createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
         userId: user.uid,
         assistantMode: agentType.name, // Mark as AI-generated
       );
@@ -118,9 +117,7 @@ class AICubit extends Cubit<AIState> {
         batch.update(
           _firestore.collection('threads').doc(threadId),
           {
-            'thoughtCount': FieldValue.increment(1),
             'updatedAt': Timestamp.fromDate(DateTime.now()),
-            'lastThoughtPreview': encrypted['encryptedContent']!,
           },
         );
         await batch.commit();

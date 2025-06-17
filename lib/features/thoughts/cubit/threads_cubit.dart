@@ -75,8 +75,6 @@ class ThreadsCubit extends Cubit<ThreadsState> {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         userId: user.uid,
-        thoughtCount: 1,
-        lastThoughtPreview: encrypted['encryptedContent']!,
         aiAgentType: aiAgentType,
       );
 
@@ -88,7 +86,6 @@ class ThreadsCubit extends Cubit<ThreadsState> {
         encryptedContent: encrypted['encryptedContent']!,
         iv: encrypted['iv']!,
         createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
         userId: user.uid,
         assistantMode: assistantMode,
       );
@@ -154,19 +151,6 @@ class ThreadsCubit extends Cubit<ThreadsState> {
       return '${truncated.substring(0, lastSpaceIndex)}...';
     } else {
       return '${truncated}...';
-    }
-  }
-
-  String decryptThreadPreview(Thread thread) {
-    try {
-      if (thread.lastThoughtPreview == null) {
-        return 'No preview available';
-      }
-      // Note: This assumes we have the IV stored elsewhere or use a different method
-      // For preview, we might want to store a separate encrypted preview with IV
-      return 'Preview encrypted'; // Placeholder - would need IV to decrypt
-    } catch (e) {
-      return 'Failed to decrypt preview';
     }
   }
 

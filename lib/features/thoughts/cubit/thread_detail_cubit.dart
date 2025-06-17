@@ -85,12 +85,11 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
         encryptedContent: encrypted['encryptedContent']!,
         iv: encrypted['iv']!,
         createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
         userId: user.uid,
         assistantMode: assistantMode,
       );
 
-      // Update thread with new thought count and preview
+      // Update thread with updated timestamp
       final batch = _firestore.batch();
       
       // Add the thought
@@ -98,9 +97,7 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
       
       // Update thread
       batch.update(_firestore.collection('threads').doc(threadId), {
-        'thoughtCount': FieldValue.increment(1),
         'updatedAt': Timestamp.fromDate(DateTime.now()),
-        'lastThoughtPreview': encrypted['encryptedContent']!,
       });
 
       await batch.commit();
@@ -120,7 +117,6 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
     if (currentState is ThreadDetailLoaded) {
       final updatedThoughts = [...currentState.thoughts, aiThought];
       final updatedThread = currentState.thread.copyWith(
-        thoughtCount: currentState.thread.thoughtCount + 1,
         updatedAt: DateTime.now(),
       );
       emit(ThreadDetailLoaded(updatedThread, updatedThoughts));
