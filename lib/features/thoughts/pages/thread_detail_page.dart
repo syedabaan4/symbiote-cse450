@@ -29,7 +29,7 @@ class ThreadDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Load thread details when page builds
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ThreadDetailCubit>().loadThreadDetails(threadId);
     });
@@ -64,7 +64,7 @@ class ThreadDetailPage extends StatelessWidget {
             BlocListener<AICubit, AIState>(
               listener: (context, state) {
                 if (state is AIResponseGenerated) {
-                  // AI reflection was already added optimistically, just show success message
+                  
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -134,7 +134,7 @@ class ThreadDetailPage extends StatelessWidget {
               if (state is ThreadDetailLoaded) {
                 return Column(
                   children: [
-                    // Thoughts list
+                    
                     Expanded(
                       child: ListView.builder(
                         controller: _scrollController,
@@ -202,7 +202,7 @@ class ThreadDetailPage extends StatelessWidget {
         builder: (context, state) {
           if (state is ThreadDetailLoaded && state.thoughts.isNotEmpty) {
             return Container(
-              margin: const EdgeInsets.only(bottom: 0), // Position above bottom bar
+              margin: const EdgeInsets.only(bottom: 0), 
               child: FloatingActionButton.small(
                 onPressed: _scrollToBottom,
                 backgroundColor: Colors.white.withValues(alpha: 0.85),
@@ -232,7 +232,7 @@ class ThreadDetailPage extends StatelessWidget {
                 height: 20,
                 child: Row(
                   children: [
-                    // Back button
+                    
                     IconButton(
                       onPressed: () => Navigator.pop(context),
                       icon: Icon(
@@ -243,7 +243,7 @@ class ThreadDetailPage extends StatelessWidget {
                       tooltip: 'Back',
                     ),
                     const Spacer(),
-                    // Reflect button (centered)
+                    
                     BlocBuilder<AICubit, AIState>(
                       builder: (context, aiState) {
                         final isGenerating = aiState is AIGenerating;
@@ -310,7 +310,7 @@ class ThreadDetailPage extends StatelessWidget {
                       },
                     ),
                     const Spacer(),
-                    // Add button (icon only, on the right)
+                    
                     IconButton(
                       onPressed: () async {
                         await Navigator.push(

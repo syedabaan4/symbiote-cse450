@@ -24,13 +24,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Initialize timezone and notification service
+  
   tz.initializeTimeZones();
   
-  // Set local timezone - this is crucial!
+  
   final String timeZoneName = await FlutterTimezone.getLocalTimezone();
   tz.setLocalLocation(tz.getLocation(timeZoneName));
-  // Device timezone set for scheduled notifications
+  
   
   await NotificationService().initialize();
   await dotenv.load(fileName: ".env");

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 class Mood extends Equatable {
   final String id;
-  final int value; // 1-5 scale (1 = very sad, 5 = very happy)
-  final DateTime date; // Store only the date (not timestamp)
+  final int value; 
+  final DateTime date; 
   final String userId;
 
   const Mood({
@@ -33,7 +33,7 @@ class Mood extends Equatable {
     };
   }
 
-  // Helper method to get mood emoji based on value
+  
   String get emoji {
     switch (value) {
       case 1:
@@ -51,7 +51,7 @@ class Mood extends Equatable {
     }
   }
 
-  // Helper method to get mood label
+  
   String get label {
     switch (value) {
       case 1:
@@ -69,7 +69,7 @@ class Mood extends Equatable {
     }
   }
 
-  // Helper method to get mood color for heatmap
+  
   Color get color {
     switch (value) {
       case 1:

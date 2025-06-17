@@ -19,7 +19,7 @@ class AuthCubit extends Cubit<AuthState> {
         super(AuthInitial()) {
     _firebaseAuth.authStateChanges().listen((User? user) async {
       if (user != null) {
-        // Check if local auth is enabled
+        
         final isLocalAuthEnabled = await _localAuthService.isLocalAuthEnabled();
         if (isLocalAuthEnabled) {
           emit(LocalAuthRequired(user));

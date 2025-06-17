@@ -181,7 +181,7 @@ class HomePage extends StatelessWidget {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Hello User text
+                        
                         Padding(
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                           child: Text(
@@ -193,7 +193,7 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        // Grid view
+                        
                         Expanded(
                           child: GridView.builder(
                             padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
@@ -224,7 +224,7 @@ class HomePage extends StatelessWidget {
                                         ),
                                       ),
                                     );
-                                    // Refresh threads when returning from thread detail
+                                    
                                     if (context.mounted) {
                                       context
                                           .read<ThreadsCubit>()
@@ -240,18 +240,18 @@ class HomePage extends StatelessWidget {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        // Top row: logo (left) and agent type (right)
+                                        
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            // Logo (top left)
+                                            
                                             Image.asset(
                                               'assets/images/logo.png',
                                               width: 16,
                                               height: 16,
                                             ),
-                                            // Agent type (top right)
+                                            
                                             Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
@@ -283,7 +283,7 @@ class HomePage extends StatelessWidget {
 
                                         const SizedBox(height: 16),
 
-                                        // Middle: Last thought content
+                                        
                                         Expanded(
                                           child: FutureBuilder<String>(
                                             future: context
@@ -315,7 +315,7 @@ class HomePage extends StatelessWidget {
 
                                         const SizedBox(height: 12),
 
-                                        // Bottom: Time (bottom left)
+                                        
                                         Align(
                                           alignment: Alignment.bottomLeft,
                                           child: Text(
@@ -351,7 +351,7 @@ class HomePage extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // App Drawer (far left)
+                    
                     Builder(
                       builder: (context) => IconButton(
                         onPressed: () => Scaffold.of(context).openDrawer(),
@@ -359,7 +359,7 @@ class HomePage extends StatelessWidget {
                         iconSize: 22,
                       ),
                     ),
-                    // Tasks (left-center)
+                    
                     IconButton(
                       onPressed: () {
                         Navigator.push(
@@ -372,7 +372,7 @@ class HomePage extends StatelessWidget {
                       icon: const Icon(Icons.task_alt, color: Colors.white),
                       iconSize: 22,
                     ),
-                    // Add Entry (center)
+                    
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -386,7 +386,7 @@ class HomePage extends StatelessWidget {
                               builder: (context) => const ThreadEntryPage(),
                             ),
                           );
-                          // Refresh threads when returning from thread entry
+                          
                           if (context.mounted) {
                             context.read<ThreadsCubit>().loadThreads();
                           }
@@ -395,7 +395,7 @@ class HomePage extends StatelessWidget {
                         iconSize: 24,
                       ),
                     ),
-                    // Mood (right-center)
+                    
                     IconButton(
                       onPressed: () async {
                         showDialog(
@@ -409,7 +409,7 @@ class HomePage extends StatelessWidget {
                       ),
                       iconSize: 22,
                     ),
-                    // Mood Tracker (far right)
+                    
                     IconButton(
                       onPressed: () {
                         Navigator.push(

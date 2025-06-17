@@ -63,10 +63,10 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
     }
 
     if (widget.existingThreadId != null) {
-      // Add thought to existing thread
+      
       await context.read<ThreadDetailCubit>().addThoughtToThread(widget.existingThreadId!, content);
     } else {
-      // Create new thread - require agent selection for new threads
+      
       if (_selectedAgent == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -106,7 +106,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
         ),
         child: Column(
           children: [
-            // Handle bar
+            
             Container(
               margin: const EdgeInsets.only(top: 12),
               width: 40,
@@ -117,7 +117,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
               ),
             ),
             
-            // Header
+            
             Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -134,7 +134,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
               ),
             ),
             
-            // Agent cards
+            
             Expanded(
               child: PageView.builder(
                 itemCount: AIAgent.availableAgents.length,
@@ -161,7 +161,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
               ),
             ),
             
-            // Dots indicator
+            
             Container(
               padding: const EdgeInsets.all(24),
               child: Row(
@@ -197,7 +197,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
               listener: (context, state) {
                 if (state is ThreadCreated) {
                   if (widget.existingThreadId == null) {
-                    // Navigate to the new thread's detail page
+                    
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -278,7 +278,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
                       ),
                     ),
                     
-                    // Save button with proper state management
+                    
                     BlocBuilder<ThreadsCubit, ThreadsState>(
                       builder: (context, threadsState) {
                         return BlocBuilder<ThreadDetailCubit, ThreadDetailState>(
@@ -340,7 +340,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
                 ),
               ),
               
-              // Agent selection for new threads
+              
               if (widget.existingThreadId == null) ...[
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
@@ -403,7 +403,7 @@ class _ThreadEntryPageState extends State<ThreadEntryPage> {
                       controller: _textController,
                       focusNode: _focusNode,
                       maxLines: null,
-                      minLines: 10, // Minimum height to fill the space
+                      minLines: 10, 
                       textAlignVertical: TextAlignVertical.top,
                       style: GoogleFonts.inter(
                         fontSize: 20,
@@ -489,7 +489,7 @@ class _AgentCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   
-                  // Agent name
+                  
                   Text(
                     agent.name,
                     style: GoogleFonts.pixelifySans(
@@ -501,7 +501,7 @@ class _AgentCard extends StatelessWidget {
                   
                   const SizedBox(height: 8),
                   
-                  // Agent description
+                  
                   Text(
                     agent.description,
                     style: GoogleFonts.inter(
@@ -513,7 +513,7 @@ class _AgentCard extends StatelessWidget {
                   
                   const Spacer(),
                   
-                  // Add to vault button
+                  
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 16),

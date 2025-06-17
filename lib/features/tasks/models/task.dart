@@ -4,15 +4,15 @@ import 'package:equatable/equatable.dart';
 class Task extends Equatable {
   final String id;
   final String content;
-  final String? category; // New field for task category
+  final String? category; 
   final bool isCompleted;
   final DateTime createdAt;
   final DateTime updatedAt;
   final String userId;
-  final String? sourceThreadId; // Optional: track which thread generated this task
-  final String? sourceThoughtId; // Optional: track which AI thought generated this task
-  final DateTime? reminderDateTime; // New field for reminder date/time
-  final int? notificationId; // New field for notification ID
+  final String? sourceThreadId; 
+  final String? sourceThoughtId; 
+  final DateTime? reminderDateTime; 
+  final int? notificationId; 
 
   const Task({
     required this.id,

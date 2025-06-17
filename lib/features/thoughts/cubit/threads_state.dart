@@ -51,7 +51,7 @@ class ThreadsError extends ThreadsState {
   List<Object?> get props => [message];
 }
 
-// Separate state for individual thread details
+
 abstract class ThreadDetailState extends Equatable {
   const ThreadDetailState();
 

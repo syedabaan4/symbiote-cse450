@@ -64,7 +64,7 @@ class ThreadsCubit extends Cubit<ThreadsState> {
       await _encryptionService.initialize(user);
       final encrypted = _encryptionService.encryptText(content);
 
-      // Create thread
+      
       final threadId = _firestore.collection('threads').doc().id;
       final thread = Thread(
         id: threadId,
@@ -74,7 +74,7 @@ class ThreadsCubit extends Cubit<ThreadsState> {
         aiAgentType: aiAgentType,
       );
 
-      // Create first thought
+      
       final thoughtId = _firestore.collection('thoughts').doc().id;
       final thought = Thought(
         id: thoughtId,
@@ -86,7 +86,7 @@ class ThreadsCubit extends Cubit<ThreadsState> {
         assistantMode: assistantMode,
       );
 
-      // Use a batch to ensure both are created together
+      
       final batch = _firestore.batch();
       batch.set(_firestore.collection('threads').doc(threadId), thread.toFirestore());
       batch.set(_firestore.collection('thoughts').doc(thoughtId), thought.toFirestore());
@@ -108,7 +108,7 @@ class ThreadsCubit extends Cubit<ThreadsState> {
         return;
       }
 
-      // Delete all thoughts in the thread first
+      
       final thoughtsSnapshot = await _firestore
           .collection('thoughts')
           .where('threadId', isEqualTo: threadId)
@@ -117,12 +117,12 @@ class ThreadsCubit extends Cubit<ThreadsState> {
 
       final batch = _firestore.batch();
       
-      // Delete all thoughts
+      
       for (final doc in thoughtsSnapshot.docs) {
         batch.delete(doc.reference);
       }
       
-      // Delete the thread
+      
       batch.delete(_firestore.collection('threads').doc(threadId));
       
       await batch.commit();
@@ -138,7 +138,7 @@ class ThreadsCubit extends Cubit<ThreadsState> {
       final user = _auth.currentUser;
       if (user == null) return 'No content available';
 
-      // Initialize encryption service (has its own check for already initialized)
+      
       await _encryptionService.initialize(user);
 
       final thoughtsSnapshot = await _firestore
@@ -163,7 +163,7 @@ class ThreadsCubit extends Cubit<ThreadsState> {
             thoughtData['iv'] as String,
           );
           
-          // Truncate to first 100 characters for preview
+          
           if (decryptedContent.length > 100) {
             return '${decryptedContent.substring(0, 100)}...';
           }

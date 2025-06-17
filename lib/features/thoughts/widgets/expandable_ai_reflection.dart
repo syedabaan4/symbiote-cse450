@@ -26,17 +26,17 @@ class _ExpandableAIReflectionState extends State<ExpandableAIReflection> {
 
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
-    // Calculate day difference based on calendar days, not 24-hour periods
+    
     final today = DateTime(now.year, now.month, now.day);
     final entryDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
     final daysDifference = today.difference(entryDate).inDays;
-    // Format time
+    
     final hour = dateTime.hour;
     final minute = dateTime.minute.toString().padLeft(2, '0');
     final amPm = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
     final timeStr = '$displayHour:$minute $amPm';
-    // Format day
+    
     String dayStr;
     if (daysDifference == 0) {
       dayStr = 'today';
@@ -81,7 +81,7 @@ class _ExpandableAIReflectionState extends State<ExpandableAIReflection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Timestamp and organize menu positioning
+          
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 12, right: 0),
             child: Row(
@@ -145,7 +145,7 @@ class _ExpandableAIReflectionState extends State<ExpandableAIReflection> {
               ],
             ),
           ),
-          // Card content
+          
           SizedBox(
             width: double.infinity,
             child: Card(
@@ -253,7 +253,7 @@ class _ExpandableAIReflectionState extends State<ExpandableAIReflection> {
   }
 
   bool _contentExceedsLines() {
-    // Use TextPainter to accurately determine overflow
+    
     final tp = TextPainter(
       text: TextSpan(
         text: widget.content,
@@ -267,7 +267,7 @@ class _ExpandableAIReflectionState extends State<ExpandableAIReflection> {
       maxLines: _previewLines,
       textDirection: TextDirection.ltr,
     );
-    // Assume max width equals screen width minus typical padding (64 for card padding and list padding)
+    
     tp.layout(maxWidth: MediaQuery.of(context).size.width - 76);
     return tp.didExceedMaxLines;
   }

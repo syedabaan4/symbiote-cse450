@@ -7,7 +7,7 @@ class Thread extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String userId;
-  final AIAgentType? aiAgentType; // AI agent chosen for this thread
+  final AIAgentType? aiAgentType; 
 
   const Thread({
     required this.id,

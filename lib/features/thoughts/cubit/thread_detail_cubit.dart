@@ -32,7 +32,7 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
 
       await _encryptionService.initialize(user);
 
-      // Load thread
+      
       final threadDoc = await _firestore
           .collection('threads')
           .doc(threadId)
@@ -45,11 +45,11 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
 
       final thread = Thread.fromFirestore(threadDoc);
 
-      // Load thoughts for this thread
+      
       final thoughtsSnapshot = await _firestore
           .collection('thoughts')
           .where('threadId', isEqualTo: threadId)
-          .orderBy('createdAt', descending: false) // Oldest first for conversation flow
+          .orderBy('createdAt', descending: false) 
           .get();
 
       final thoughts = thoughtsSnapshot.docs
@@ -77,7 +77,7 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
       await _encryptionService.initialize(user);
       final encrypted = _encryptionService.encryptText(content);
 
-      // Create new thought
+      
       final thoughtId = _firestore.collection('thoughts').doc().id;
       final thought = Thought(
         id: thoughtId,
@@ -89,13 +89,13 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
         assistantMode: assistantMode,
       );
 
-      // Update thread with updated timestamp
+      
       final batch = _firestore.batch();
       
-      // Add the thought
+      
       batch.set(_firestore.collection('thoughts').doc(thoughtId), thought.toFirestore());
       
-      // Update thread
+      
       batch.update(_firestore.collection('threads').doc(threadId), {
         'updatedAt': Timestamp.fromDate(DateTime.now()),
       });
@@ -104,14 +104,14 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
 
       emit(ThoughtAdded(thought));
       
-      // Reload the thread details to get updated data
+      
       await loadThreadDetails(threadId);
     } catch (e) {
       emit(ThreadDetailError('Failed to add thought: ${e.toString()}'));
     }
   }
 
-  // Method for AI cubit to add AI responses optimistically
+  
   void addAIThoughtOptimistically(Thought aiThought) {
     final currentState = state;
     if (currentState is ThreadDetailLoaded) {
@@ -123,7 +123,7 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
     }
   }
 
-  // Method to handle AI thought save failure
+  
   void handleAIThoughtError(String error) {
     emit(ThreadDetailError(error));
   }

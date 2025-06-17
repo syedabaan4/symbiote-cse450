@@ -12,7 +12,7 @@ class LocalAuthService {
   static const String _pinKey = 'user_pin_hash';
   static const String _localAuthEnabledKey = 'local_auth_enabled';
 
-  /// Check if the device supports local authentication
+  
   Future<bool> isDeviceSupported() async {
     try {
       return await _localAuth.isDeviceSupported();
@@ -21,7 +21,7 @@ class LocalAuthService {
     }
   }
 
-  /// Check if biometrics are available on the device
+  
   Future<bool> canCheckBiometrics() async {
     try {
       return await _localAuth.canCheckBiometrics;
@@ -30,7 +30,7 @@ class LocalAuthService {
     }
   }
 
-  /// Get available biometric types
+  
   Future<List<BiometricType>> getAvailableBiometrics() async {
     try {
       return await _localAuth.getAvailableBiometrics();
@@ -39,25 +39,25 @@ class LocalAuthService {
     }
   }
 
-  /// Check if local authentication is enabled by user
+  
   Future<bool> isLocalAuthEnabled() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_localAuthEnabledKey) ?? false;
   }
 
-  /// Enable/disable local authentication
+  
   Future<void> setLocalAuthEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_localAuthEnabledKey, enabled);
   }
 
-  /// Check if PIN is set
+  
   Future<bool> isPinSet() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_pinKey) != null;
   }
 
-  /// Set PIN (hashed for security)
+  
   Future<void> setPin(String pin) async {
     final prefs = await SharedPreferences.getInstance();
     final bytes = utf8.encode(pin);
@@ -65,7 +65,7 @@ class LocalAuthService {
     await prefs.setString(_pinKey, digest.toString());
   }
 
-  /// Verify PIN
+  
   Future<bool> verifyPin(String pin) async {
     final prefs = await SharedPreferences.getInstance();
     final storedHash = prefs.getString(_pinKey);
@@ -77,13 +77,13 @@ class LocalAuthService {
     return digest.toString() == storedHash;
   }
 
-  /// Remove PIN
+  
   Future<void> removePin() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_pinKey);
   }
 
-  /// Authenticate with biometrics
+  
   Future<bool> authenticateWithBiometrics({
     String localizedReason = 'Please authenticate to access the app',
   }) async {
@@ -102,13 +102,13 @@ class LocalAuthService {
     }
   }
 
-  /// Authenticate with PIN or biometrics
+  
   Future<LocalAuthResult> authenticate({
     String localizedReason = 'Please authenticate to access the app',
     bool preferBiometrics = true,
   }) async {
     try {
-      // Check if device supports authentication
+      
       if (!await isDeviceSupported()) {
         return LocalAuthResult(
           success: false,
@@ -117,7 +117,7 @@ class LocalAuthService {
         );
       }
 
-      // If biometrics are preferred and available, try biometrics first
+      
       if (preferBiometrics && await canCheckBiometrics()) {
         final availableBiometrics = await getAvailableBiometrics();
         if (availableBiometrics.isNotEmpty) {
@@ -128,13 +128,14 @@ class LocalAuthService {
             if (success) {
               return LocalAuthResult(success: true);
             }
+          // ignore: empty_catches
           } catch (e) {
-            // Fall back to PIN if biometrics fail
+            
           }
         }
       }
 
-      // Fall back to PIN authentication
+      
       return LocalAuthResult(
         success: false,
         requiresPin: await isPinSet(),

@@ -5,7 +5,7 @@ import '../models/ai_agent.dart';
 
 class OpenRouterService {
   static const String _baseUrl = 'https://openrouter.ai/api/v1';
-  static const String _model = 'deepseek/deepseek-r1-0528:free'; // Default model
+  static const String _model = 'deepseek/deepseek-r1-0528:free'; 
   
   static final String? _apiKey = dotenv.env['API_KEY'];
   
@@ -26,8 +26,8 @@ class OpenRouterService {
         headers: {
           'Authorization': 'Bearer $_apiKey',
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'symbiote-app', // Optional: for tracking
-          'X-Title': 'Symbiote Journaling App', // Optional: for tracking
+          'HTTP-Referer': 'symbiote-app', 
+          'X-Title': 'Symbiote Journaling App', 
         },
         body: json.encode({
           'model': _model,
@@ -55,29 +55,24 @@ class OpenRouterService {
     required String userMessage,
   }) {
     final messages = <Map<String, String>>[];
-    
-    // Add system prompt
+
     messages.add({
       'role': 'system',
       'content': systemPrompt,
     });
-    
-    // Add conversation history
-    // For simplicity, treating all history as user messages
-    // In a more sophisticated setup, you might alternate between user and assistant
-    for (int i = 0; i < conversationHistory.length; i++) {
+
+    for (final pastMessage in conversationHistory) {
       messages.add({
-        'role': i % 2 == 0 ? 'user' : 'assistant',
-        'content': conversationHistory[i],
+        'role': 'user',
+        'content': pastMessage,
       });
     }
-    
-    // Add current user message
+
     messages.add({
       'role': 'user',
       'content': userMessage,
     });
-    
+
     return messages;
   }
 } 

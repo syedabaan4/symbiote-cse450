@@ -41,7 +41,7 @@ class AICubit extends Cubit<AIState> {
 
       await _encryptionService.initialize(user);
 
-      // Get thread and its thoughts
+      
       final threadDoc = await _firestore
           .collection('threads')
           .doc(threadId)
@@ -52,14 +52,14 @@ class AICubit extends Cubit<AIState> {
         return;
       }
 
-      // Get all thoughts in the thread
+      
       final thoughtsSnapshot = await _firestore
           .collection('thoughts')
           .where('threadId', isEqualTo: threadId)
           .orderBy('createdAt', descending: false)
           .get();
 
-      // Decrypt thoughts to build conversation history
+      
       final conversationHistory = <String>[];
       for (final doc in thoughtsSnapshot.docs) {
         final thought = Thought.fromFirestore(doc);
@@ -70,7 +70,7 @@ class AICubit extends Cubit<AIState> {
           );
           conversationHistory.add(decryptedContent);
         } catch (e) {
-          // Skip thoughts that can't be decrypted
+          
           continue;
         }
       }
@@ -80,17 +80,17 @@ class AICubit extends Cubit<AIState> {
         return;
       }
 
-      // Get the AI agent
+      
       final agent = AIAgent.getByType(agentType);
 
-      // Generate AI response
+      
       final aiResponse = await _openRouterService.generateResponse(
         agent: agent,
         conversationHistory: conversationHistory.take(conversationHistory.length - 1).toList(),
         userMessage: conversationHistory.last,
       );
 
-      // Encrypt and create AI thought
+      
       final encrypted = _encryptionService.encryptText(aiResponse);
       
       final thoughtId = _firestore.collection('thoughts').doc().id;
@@ -101,13 +101,13 @@ class AICubit extends Cubit<AIState> {
         iv: encrypted['iv']!,
         createdAt: DateTime.now(),
         userId: user.uid,
-        assistantMode: agentType.name, // Mark as AI-generated
+        assistantMode: agentType.name, 
       );
 
-      // Add AI thought to UI immediately if thread detail cubit is available
+      
       threadDetailCubit?.addAIThoughtOptimistically(aiThought);
 
-      // Save to Firebase in background
+      
       try {
         final batch = _firestore.batch();
         batch.set(
@@ -124,7 +124,7 @@ class AICubit extends Cubit<AIState> {
 
         emit(AIResponseGenerated(response: aiResponse, threadId: threadId));
       } catch (e) {
-        // If Firebase fails, notify the thread detail cubit
+        
         threadDetailCubit?.handleAIThoughtError('Failed to save AI reflection: $e');
         emit(AIError('Failed to generate reflection: $e'));
       }

@@ -12,7 +12,7 @@ class MoodTrackerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Load moods when page builds
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MoodCubit>().loadMoods();
     });

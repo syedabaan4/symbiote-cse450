@@ -30,10 +30,10 @@ class ExportCubit extends Cubit<ExportState> {
         return;
       }
 
-      // Initialize encryption service
+      
       await _encryptionService.initialize(user);
 
-      // Fetch journal entries (thoughts/threads)
+      
       final threadsSnapshot = await _firestore
           .collection('threads')
           .where('userId', isEqualTo: user.uid)
@@ -46,14 +46,14 @@ class ExportCubit extends Cubit<ExportState> {
           .orderBy('createdAt', descending: true)
           .get();
 
-      // Fetch moods
+      
       final moodsSnapshot = await _firestore
           .collection('moods')
           .where('userId', isEqualTo: user.uid)
           .orderBy('date', descending: true)
           .get();
 
-      // Prepare data for export
+      
       final exportData = {
         'export_info': {
           'timestamp': DateTime.now().toIso8601String(),
@@ -69,19 +69,19 @@ class ExportCubit extends Cubit<ExportState> {
             })).toList(),
       };
 
-      // Convert to JSON string
+      
       final jsonData = json.encode(exportData);
 
-      // XOR encrypt with password
+      
       final encryptedData = _xorEncrypt(jsonData, password);
       
-      // Convert to Base64
+      
       final base64Data = base64.encode(encryptedData);
 
-      // Create export file content
+      
       final fileContent = _createFileContent(base64Data);
 
-      // Save and share file
+      
       await _shareFile(fileContent);
 
       emit(const ExportSuccess());
@@ -108,7 +108,7 @@ class ExportCubit extends Cubit<ExportState> {
       'id': doc.id,
     };
 
-    // Decrypt if encrypted content is present
+    
     if (data.containsKey('encryptedContent') && data.containsKey('iv')) {
       try {
         final decryptedContent = _encryptionService.decryptText(
@@ -117,18 +117,18 @@ class ExportCubit extends Cubit<ExportState> {
         );
         decryptedData['content'] = decryptedContent;
       } catch (e) {
-        // If decryption fails, keep original encrypted data
+        
         decryptedData['encryptedContent'] = data['encryptedContent'];
         decryptedData['iv'] = data['iv'];
       }
     }
 
-    // Add all other fields (except encryptedContent and iv if they were decrypted)
+    
     for (final entry in data.entries) {
       if (entry.key != 'encryptedContent' && entry.key != 'iv') {
         decryptedData[entry.key] = entry.value;
       } else if (!decryptedData.containsKey('content')) {
-        // Keep encrypted data if decryption didn't happen or failed
+        
         decryptedData[entry.key] = entry.value;
       }
     }

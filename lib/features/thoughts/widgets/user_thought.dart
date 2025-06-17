@@ -13,17 +13,17 @@ class UserThought extends StatelessWidget {
 
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
-    // Calculate day difference based on calendar days, not 24-hour periods
+    
     final today = DateTime(now.year, now.month, now.day);
     final entryDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
     final daysDifference = today.difference(entryDate).inDays;
-    // Format time
+    
     final hour = dateTime.hour;
     final minute = dateTime.minute.toString().padLeft(2, '0');
     final amPm = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
     final timeStr = '$displayHour:$minute $amPm';
-    // Format day
+    
     String dayStr;
     if (daysDifference == 0) {
       dayStr = 'today';
@@ -67,7 +67,7 @@ class UserThought extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Timestamp
+          
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Text(
@@ -80,7 +80,7 @@ class UserThought extends StatelessWidget {
               ),
             ),
           ),
-          // Content with journal-like styling
+          
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(left: 16),
@@ -103,7 +103,7 @@ class UserThought extends StatelessWidget {
               ),
             ),
           ),
-          // Subtle separator
+          
           Container(
             margin: const EdgeInsets.only(top: 24),
             height: 1,

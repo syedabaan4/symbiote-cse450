@@ -1,13 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Required for notifications on Android 13+ -->
+
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- Required for scheduled/exact alarms -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-    <!-- Optional: for wake up functionality -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <!-- Optional: for receiving boot completed -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 
     <application
         android:label="symbiote"

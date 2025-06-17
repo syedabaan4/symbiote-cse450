@@ -13,29 +13,29 @@ class NotificationService {
   static const String _remindersEnabledKey = 'reminders_enabled';
 
   Future<void> initialize() async {
-    // Android settings
+    
     const AndroidInitializationSettings androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher'
     );
     
-    // Combined settings
+    
     const InitializationSettings initSettings = InitializationSettings(
       android: androidSettings,
     );
 
-    // Initialize with callback handling
+    
     await _notifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
-    // Request permissions
+    
     await _requestPermissions();
   }
 
-  // Handle notification taps
+  
   static void _onNotificationTapped(NotificationResponse notificationResponse) {
-    // Handle notification tap if needed
+    
   }
 
   Future<void> _requestPermissions() async {
@@ -44,9 +44,9 @@ class NotificationService {
           _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidImplementation != null) {
-        // Request notification permission (Android 13+)
+        
         await androidImplementation.requestNotificationsPermission();
-        // Request exact alarm permission
+        
         await androidImplementation.requestExactAlarmsPermission();
       }
     }
@@ -77,10 +77,10 @@ class NotificationService {
     final now = DateTime.now();
     if (scheduledTime.isBefore(now)) return;
 
-    // Scheduling notification
+    
     final tz.TZDateTime scheduledDate = tz.TZDateTime.from(scheduledTime, tz.local);
 
-    // Create notification details
+    
     const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'task_reminders',
       'Task Reminders',
@@ -120,7 +120,7 @@ class NotificationService {
     await _notifications.cancelAll();
   }
 
-  // Check permissions
+  
   Future<bool> canScheduleExactAlarms() async {
     if (Platform.isAndroid) {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
@@ -133,7 +133,7 @@ class NotificationService {
     return false;
   }
 
-  // Check if notifications are enabled
+  
   Future<bool> areNotificationsEnabled() async {
     if (Platform.isAndroid) {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
