@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../thoughts/models/thread.dart';
 import '../../thoughts/models/thought.dart';
 import '../../thoughts/services/encryption_service.dart';
 import '../../thoughts/cubit/thread_detail_cubit.dart';
@@ -52,8 +51,6 @@ class AICubit extends Cubit<AIState> {
         emit(const AIError('Thread not found'));
         return;
       }
-
-      final thread = Thread.fromFirestore(threadDoc);
 
       // Get all thoughts in the thread
       final thoughtsSnapshot = await _firestore

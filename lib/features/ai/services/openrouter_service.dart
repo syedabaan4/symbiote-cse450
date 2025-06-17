@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '../models/ai_agent.dart';
 
@@ -6,8 +7,7 @@ class OpenRouterService {
   static const String _baseUrl = 'https://openrouter.ai/api/v1';
   static const String _model = 'deepseek/deepseek-r1-0528:free'; // Default model
   
-  // TODO: Replace with actual API key
-  static const String _apiKey = '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';
+  static final String? _apiKey = dotenv.env['API_KEY'];
   
   Future<String> generateResponse({
     required AIAgent agent,

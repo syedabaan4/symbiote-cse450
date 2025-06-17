@@ -322,17 +322,10 @@ class ThreadDetailPage extends StatelessWidget {
                           ),
                         );
                       },
-                      icon: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(
-                          Icons.add_sharp,
-                          color: Colors.black,
-                          size: 20,
-                        ),
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 22,
                       ),
                       tooltip: 'Add thought',
                     ),

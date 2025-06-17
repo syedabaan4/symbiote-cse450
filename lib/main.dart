@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:symbiote/features/auth/cubit/auth_state.dart';
@@ -32,6 +33,7 @@ void main() async {
   // Device timezone set for scheduled notifications
   
   await NotificationService().initialize();
+  await dotenv.load(fileName: ".env");
   
   runApp(const MainApp());
 }

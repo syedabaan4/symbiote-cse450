@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 
 class ExpandableAIReflection extends StatefulWidget {
   final String content;
@@ -172,17 +173,18 @@ class _ExpandableAIReflectionState extends State<ExpandableAIReflection> {
                     firstChild: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SelectableText(
-                          widget.content,
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                            height: 1.6,
-                            color: Colors.grey.shade700,
-                            letterSpacing: 0.2,
+                        SelectionArea(
+                          child: GptMarkdown(
+                            widget.content,
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              height: 1.6,
+                              color: Colors.grey.shade700,
+                              letterSpacing: 0.2,
+                            ),
+                            maxLines: _previewLines,
                           ),
-                          maxLines: _previewLines,
-                          //overflow: TextOverflow.ellipsis,
                         ),
                         if (_contentExceedsLines()) const SizedBox(height: 8),
                         if (_contentExceedsLines())
@@ -208,14 +210,16 @@ class _ExpandableAIReflectionState extends State<ExpandableAIReflection> {
                     secondChild: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SelectableText(
-                          widget.content,
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                            height: 1.6,
-                            color: Colors.grey.shade700,
-                            letterSpacing: 0.2,
+                        SelectionArea(
+                          child: GptMarkdown(
+                            widget.content,
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              height: 1.6,
+                              color: Colors.grey.shade700,
+                              letterSpacing: 0.2,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),

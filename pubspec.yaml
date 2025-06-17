@@ -29,6 +29,8 @@ dependencies:
   share_plus: ^10.0.0
   local_auth: ^2.3.0
   pinput: ^5.0.1
+  flutter_dotenv: ^5.2.1
+  gpt_markdown: ^1.0.20
 
 dev_dependencies:
   flutter_test:
@@ -38,4 +40,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - .env
     - assets/images/
