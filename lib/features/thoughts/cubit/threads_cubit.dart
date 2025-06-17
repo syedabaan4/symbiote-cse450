@@ -119,6 +119,7 @@ class ThreadsCubit extends Cubit<ThreadsState> {
       final thoughtsSnapshot = await _firestore
           .collection('thoughts')
           .where('threadId', isEqualTo: threadId)
+          .where('userId', isEqualTo: user.uid)
           .get();
 
       final batch = _firestore.batch();
@@ -166,6 +167,53 @@ class ThreadsCubit extends Cubit<ThreadsState> {
       return 'Preview encrypted'; // Placeholder - would need IV to decrypt
     } catch (e) {
       return 'Failed to decrypt preview';
+    }
+  }
+
+  Future<String> getLatestThoughtContent(String threadId) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return 'No content available';
+
+      // Initialize encryption service (has its own check for already initialized)
+      await _encryptionService.initialize(user);
+
+      final thoughtsSnapshot = await _firestore
+          .collection('thoughts')
+          .where('threadId', isEqualTo: threadId)
+          .where('userId', isEqualTo: user.uid)
+          .orderBy('createdAt', descending: true)
+          .limit(1)
+          .get();
+
+      if (thoughtsSnapshot.docs.isEmpty) {
+        return 'No content available';
+      }
+
+      final latestThought = thoughtsSnapshot.docs.first;
+      final thoughtData = latestThought.data();
+      
+      if (thoughtData['encryptedContent'] != null && thoughtData['iv'] != null) {
+        try {
+          final decryptedContent = _encryptionService.decryptText(
+            thoughtData['encryptedContent'] as String,
+            thoughtData['iv'] as String,
+          );
+          
+          // Truncate to first 100 characters for preview
+          if (decryptedContent.length > 100) {
+            return '${decryptedContent.substring(0, 100)}...';
+          }
+          return decryptedContent;
+        } catch (decryptionError) {
+          return 'Unable to decrypt content';
+        }
+      }
+      
+      return 'Content not available';
+    } catch (e) {
+      print('Error loading thread content: $e'); // Debug log
+      return 'Preview not available';
     }
   }
 } 

@@ -5,27 +5,59 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../auth/cubit/auth_state.dart';
 import '../../drawer/widgets/app_drawer.dart';
-import '../../moods/cubit/mood_cubit.dart';
 import '../../moods/pages/mood_log_dialog.dart';
+import '../../moods/pages/mood_tracker_page.dart';
+import '../../tasks/pages/tasks_page.dart';
 import '../cubit/threads_cubit.dart';
 import '../cubit/threads_state.dart';
+import '../../ai/models/ai_agent.dart';
 import 'thread_entry_page.dart';
 import 'thread_detail_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final threadDate = DateTime(date.year, date.month, date.day);
+  String _formatTime(DateTime date) {
+    final hour = date.hour;
+    final minute = date.minute.toString().padLeft(2, '0');
+    final amPm = hour >= 12 ? 'PM' : 'AM';
+    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+    return '$displayHour:$minute $amPm';
+  }
 
-    if (threadDate == today) {
-      return 'Today';
-    } else if (threadDate == today.subtract(const Duration(days: 1))) {
-      return 'Yesterday';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
+  String _getAgentDisplayName(AIAgentType? agentType) {
+    if (agentType == null) return 'General';
+    switch (agentType) {
+      case AIAgentType.reflective:
+        return 'Reflective';
+      case AIAgentType.creative:
+        return 'Creative';
+      case AIAgentType.organize:
+        return 'Organize';
+    }
+  }
+
+  Color _getAgentColor(AIAgentType? agentType) {
+    if (agentType == null) return Colors.grey.shade100;
+    switch (agentType) {
+      case AIAgentType.reflective:
+        return Colors.green.shade100;
+      case AIAgentType.creative:
+        return Colors.red.shade100;
+      case AIAgentType.organize:
+        return Colors.blue.shade100;
+    }
+  }
+
+  Color _getAgentTextColor(AIAgentType? agentType) {
+    if (agentType == null) return Colors.grey.shade600;
+    switch (agentType) {
+      case AIAgentType.reflective:
+        return Colors.green.shade700;
+      case AIAgentType.creative:
+        return Colors.red.shade700;
+      case AIAgentType.organize:
+        return Colors.blue.shade700;
     }
   }
 
@@ -88,202 +120,269 @@ class HomePage extends StatelessWidget {
           
           return Scaffold(
             drawer: const AppDrawer(),
-            appBar: AppBar(
-              centerTitle: true,
-              title: Text(
-                'My Threads',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              backgroundColor: Colors.blueGrey.shade50,
-              elevation: 0,
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const Icon(
-                    Icons.menu,
-                    color: Colors.black,
-                  ),
-                  onPressed: () => Scaffold.of(context).openDrawer(),
-                ),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.refresh,
-                    color: Colors.black,
-                  ),
-                  onPressed: () => context.read<ThreadsCubit>().loadThreads(),
-                ),
-              ],
-            ),
-            body: BlocBuilder<ThreadsCubit, ThreadsState>(
-              builder: (context, state) {
-                if (state is ThreadsLoading) {
-                  return Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.black, size: 30));
-                }
-
-                if (state is ThreadsError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Error: ${state.message}'),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () => context.read<ThreadsCubit>().loadThreads(),
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (state is ThreadsLoaded) {
-                  if (state.threads.isEmpty) {
-                    return const Center(
+            body: SafeArea(
+              child: BlocBuilder<ThreadsCubit, ThreadsState>(
+                builder: (context, state) {
+                  if (state is ThreadsLoading) {
+                    return Center(child: LoadingAnimationWidget.fourRotatingDots(color: Colors.black, size: 30));
+                  }
+              
+                  if (state is ThreadsError) {
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.forum_outlined, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text(
-                            'No threads yet',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Tap the + button to start your first thread',
-                            style: TextStyle(color: Colors.grey),
+                          Text('Error: ${state.message}'),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => context.read<ThreadsCubit>().loadThreads(),
+                            child: const Text('Retry'),
                           ),
                         ],
                       ),
                     );
                   }
-
-                  return GridView.builder(
-                    padding: const EdgeInsets.all(8),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      childAspectRatio: 0.9,
-                    ),
-                    itemCount: state.threads.length,
-                    itemBuilder: (context, index) {
-                      final thread = state.threads[index];
-
-                      return Card(
-                        elevation: 1,
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.push(
+              
+                  if (state is ThreadsLoaded) {
+                    if (state.threads.isEmpty) {
+                      return const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.forum_outlined, size: 64, color: Colors.grey),
+                            SizedBox(height: 16),
+                            Text(
+                              'No threads yet',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Tap the + button to start your first thread',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+              
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                                              // Hello User text
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                        child: Text(
+                          'Hello, ${authState is Authenticated ? (authState.user.displayName ?? authState.user.email?.split('@')[0] ?? 'User') : 'User'}!',
+                          style: GoogleFonts.pixelifySans(
+                            fontSize: 40,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                        // Grid view
+                        Expanded(
+                          child: GridView.builder(
+                            padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 0,
+                        mainAxisSpacing: 0,
+                        childAspectRatio: 0.85,
+                      ),
+                      itemCount: state.threads.length,
+                      itemBuilder: (context, index) {
+                        final thread = state.threads[index];
+              
+                        return Card(
+                          elevation: 2,
+                          shadowColor: Colors.black.withOpacity(0.1),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                                                  child: InkWell(
+                          onTap: () async {
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ThreadDetailPage(threadId: thread.id),
                               ),
                             );
+                            // Refresh threads when returning from thread detail
+                            if (context.mounted) {
+                              context.read<ThreadsCubit>().loadThreads();
+                            }
                           },
-                          onLongPress: () => _showDeleteDialog(context, thread.id),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        thread.title,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87,
+                            onLongPress: () => _showDeleteDialog(context, thread.id),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Top row: logo (left) and agent type (right)
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // Logo (top left)
+                                      Image.asset(
+                                        'assets/images/logo.png',
+                                        width: 16,
+                                        height: 16,
+                                      ),
+                                      // Agent type (top right)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: _getAgentColor(thread.aiAgentType),
+                                          borderRadius: BorderRadius.circular(8),
                                         ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blueGrey.shade100,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        '${thread.thoughtCount}',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.blueGrey.shade700,
+                                        child: Text(
+                                          _getAgentDisplayName(thread.aiAgentType),
+                                          style: GoogleFonts.pixelifySans(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                            color: _getAgentTextColor(thread.aiAgentType),
+                                          ),
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                  
+                                  const SizedBox(height: 16),
+                                  
+                                  // Middle: Last thought content
+                                  Expanded(
+                                    child: FutureBuilder<String>(
+                                      future: context.read<ThreadsCubit>().getLatestThoughtContent(thread.id),
+                                      builder: (context, snapshot) {
+                                        final content = snapshot.connectionState == ConnectionState.done
+                                            ? (snapshot.data ?? 'No content')
+                                            : 'Loading...';
+                                        return Text(
+                                          content,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.3,
+                                            color: Colors.grey.shade700,
+                                          ),
+                                          maxLines: 10,
+                                          overflow: TextOverflow.ellipsis,
+                                        );
+                                      },
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      _formatDate(thread.updatedAt),
+                                  ),
+                                  
+                                  const SizedBox(height: 12,),
+                                  
+                                  // Bottom: Time (bottom left)
+                                  Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: Text(
+                                      _formatTime(thread.updatedAt),
                                       style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey.shade500,
                                       ),
                                     ),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      size: 16,
-                                      color: Colors.grey[400],
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
+                        );
+                      },
+                          ),
                         ),
-                      );
-                    },
-                  );
-                }
-
-                return const Center(child: CircularProgressIndicator());
-              },
+                      ],
+                    );
+                  }
+              
+                  return const Center(child: CircularProgressIndicator());
+                },
+              ),
             ),
-            floatingActionButton: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Mood logging button
-                FloatingActionButton(
-                  onPressed: () async {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const MoodLogDialog(),
-                    );
-                  },
-                  heroTag: "mood",
-                  backgroundColor: Colors.purple.shade600,
-                  child: const Icon(Icons.sentiment_satisfied_alt, color: Colors.white),
-                ),
-                const SizedBox(height: 12),
-                // Add thread button
-                FloatingActionButton(
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ThreadEntryPage(),
+            bottomNavigationBar: BottomAppBar(
+              height: 65,
+              color: Colors.deepPurple,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // App Drawer (far left)
+                    Builder(
+                      builder: (context) => IconButton(
+                        onPressed: () => Scaffold.of(context).openDrawer(),
+                        icon: const Icon(Icons.menu, color: Colors.white),
+                        iconSize: 22,
                       ),
-                    );
-                  },
-                  heroTag: "thread",
-                  child: const Icon(Icons.add),
+                    ),
+                    // Tasks (left-center)
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TasksPage(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.task_alt, color: Colors.white),
+                      iconSize: 22,
+                    ),
+                    // Add Entry (center)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: IconButton(
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ThreadEntryPage(),
+                            ),
+                          );
+                          // Refresh threads when returning from thread entry
+                          if (context.mounted) {
+                            context.read<ThreadsCubit>().loadThreads();
+                          }
+                        },
+                        icon: Icon(Icons.add_sharp, color: Colors.black),
+                        iconSize: 24,
+                      ),
+                    ),
+                    // Mood (right-center)
+                    IconButton(
+                      onPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const MoodLogDialog(),
+                        );
+                      },
+                      icon: const Icon(Icons.sentiment_satisfied_alt, color: Colors.white),
+                      iconSize: 22,
+                    ),
+                    // Mood Tracker (far right)
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MoodTrackerPage(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.analytics_outlined, color: Colors.white),
+                      iconSize: 22,
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           );
         },

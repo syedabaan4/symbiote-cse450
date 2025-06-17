@@ -225,6 +225,7 @@ class ThreadDetailPage extends StatelessWidget {
         builder: (context, state) {
           if (state is ThreadDetailLoaded) {
             return BottomAppBar(
+              height: 75,
               color: Colors.deepPurple,
               elevation: 4,
               child: SizedBox(
@@ -302,7 +303,7 @@ class ThreadDetailPage extends StatelessWidget {
                               vertical: 8,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(16),
                             ),
                           ),
                         );
@@ -325,10 +326,10 @@ class ThreadDetailPage extends StatelessWidget {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: const Icon(
-                          Icons.add,
+                          Icons.add_sharp,
                           color: Colors.black,
                           size: 20,
                         ),
