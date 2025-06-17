@@ -130,9 +130,6 @@ class ThreadDetailCubit extends Cubit<ThreadDetailState> {
 
   String decryptThought(Thought thought) {
     try {
-      if (thought.iv.isEmpty) {
-        return '[This thought cannot be decrypted - created with older version]';
-      }
       return _encryptionService.decryptText(thought.encryptedContent, thought.iv);
     } catch (e) {
       return '[Failed to decrypt thought]';

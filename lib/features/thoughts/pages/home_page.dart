@@ -29,11 +29,11 @@ class HomePage extends StatelessWidget {
     if (agentType == null) return 'General';
     switch (agentType) {
       case AIAgentType.reflective:
-        return 'Reflective';
+        return 'Axis';
       case AIAgentType.creative:
-        return 'Creative';
+        return 'Juggernaut';
       case AIAgentType.organize:
-        return 'Organize';
+        return 'Codex';
     }
   }
 
@@ -210,7 +210,7 @@ class HomePage extends StatelessWidget {
 
                               return Card(
                                 elevation: 2,
-                                shadowColor: Colors.black.withOpacity(0.1),
+                                shadowColor: Colors.black.withValues(alpha: 0.1),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),

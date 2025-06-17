@@ -205,7 +205,7 @@ class ThreadDetailPage extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 0), // Position above bottom bar
               child: FloatingActionButton.small(
                 onPressed: _scrollToBottom,
-                backgroundColor: Colors.white.withOpacity(0.85),
+                backgroundColor: Colors.white.withValues(alpha: 0.85),
                 foregroundColor: Colors.grey.shade600,
                 elevation: 1,
                 splashColor: Colors.grey.shade100,

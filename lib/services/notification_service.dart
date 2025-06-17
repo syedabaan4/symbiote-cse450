@@ -15,20 +15,12 @@ class NotificationService {
   Future<void> initialize() async {
     // Android settings
     const AndroidInitializationSettings androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher' // Make sure you have this icon
-    );
-    
-    // iOS settings
-    const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      '@mipmap/ic_launcher'
     );
     
     // Combined settings
     const InitializationSettings initSettings = InitializationSettings(
       android: androidSettings,
-      iOS: iosSettings,
     );
 
     // Initialize with callback handling
@@ -43,7 +35,7 @@ class NotificationService {
 
   // Handle notification taps
   static void _onNotificationTapped(NotificationResponse notificationResponse) {
-    // TODO: navigate to relevant screen or handle tap if needed
+    // Handle notification tap if needed
   }
 
   Future<void> _requestPermissions() async {
@@ -57,17 +49,6 @@ class NotificationService {
         // Request exact alarm permission
         await androidImplementation.requestExactAlarmsPermission();
       }
-    }
-
-    if (Platform.isIOS) {
-      final IOSFlutterLocalNotificationsPlugin? iosImplementation =
-          _notifications.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
-      
-      await iosImplementation?.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
     }
   }
 
@@ -99,10 +80,10 @@ class NotificationService {
     // Scheduling notification
     final tz.TZDateTime scheduledDate = tz.TZDateTime.from(scheduledTime, tz.local);
 
-    // Create proper notification details following documentation
+    // Create notification details
     const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'task_reminders', // channelId
-      'Task Reminders', // channelName
+      'task_reminders',
+      'Task Reminders',
       channelDescription: 'Notifications for task reminders',
       importance: Importance.high,
       priority: Priority.high,
@@ -111,15 +92,8 @@ class NotificationService {
       icon: '@mipmap/ic_launcher',
     );
 
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
-
     const NotificationDetails notificationDetails = NotificationDetails(
       android: androidDetails,
-      iOS: iosDetails,
     );
 
     try {
@@ -131,11 +105,8 @@ class NotificationService {
         notificationDetails,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        payload: 'task_reminder_$notificationId', // Add payload for handling taps
+        payload: 'task_reminder_$notificationId',
       );
-
-      // Notification scheduled successfully
-
     } catch (_) {
       rethrow;
     }
@@ -159,7 +130,7 @@ class NotificationService {
         return await androidImplementation.canScheduleExactNotifications() ?? false;
       }
     }
-    return true; // iOS doesn't have this restriction
+    return false;
   }
 
   // Check if notifications are enabled
@@ -172,6 +143,6 @@ class NotificationService {
         return await androidImplementation.areNotificationsEnabled() ?? false;
       }
     }
-    return true; // Assume enabled on other platforms
+    return false;
   }
 } 

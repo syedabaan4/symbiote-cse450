@@ -175,7 +175,6 @@ class ThreadsCubit extends Cubit<ThreadsState> {
       
       return 'Content not available';
     } catch (e) {
-      print('Error loading thread content: $e'); // Debug log
       return 'Preview not available';
     }
   }
